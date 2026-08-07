@@ -17,14 +17,31 @@ export function useCurrentUser() {
   });
 }
 
+/**
+ * Hands the session to this app's own domain, where `proxy.ts` can see it.
+ *
+ * Not `apiClient` — that is pointed at the API, and `/api/session` is a route of this app.
+ * Awaited before the redirect: unawaited, the gate on /dashboard runs before the cookie
+ * it looks for has been written, and sends the login it just approved back to /login.
+ */
+const startSession = (token: string) =>
+  fetch("/api/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+const endSession = () => fetch("/api/session", { method: "DELETE" });
+
 export function useLogin() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (values: LoginFormValues) => authApi.login(values),
-    onSuccess: (user) => {
+    onSuccess: async ({ user, token }) => {
       queryClient.setQueryData(queryKeys.me, user);
+      await startSession(token);
       router.replace("/dashboard");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
@@ -37,7 +54,8 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: authApi.logout,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await endSession();
       queryClient.clear();
       router.replace("/login");
     },

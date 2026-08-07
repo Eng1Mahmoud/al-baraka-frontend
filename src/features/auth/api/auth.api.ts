@@ -3,9 +3,13 @@ import type { AuthUser } from "@/features/auth/types/auth";
 import type { LoginFormValues } from "@/features/auth/schemas/loginSchema";
 
 export const authApi = {
-  login: async (values: LoginFormValues): Promise<AuthUser> => {
-    const { data } = await apiClient.post<{ user: AuthUser }>("/auth/login", values);
-    return data.user;
+  /** The token comes back alongside the user — `useLogin` puts it in a cookie on this domain. */
+  login: async (values: LoginFormValues): Promise<{ user: AuthUser; token: string }> => {
+    const { data } = await apiClient.post<{ user: AuthUser; token: string }>(
+      "/auth/login",
+      values
+    );
+    return data;
   },
 
   logout: async (): Promise<void> => {
