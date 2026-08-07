@@ -15,6 +15,26 @@ export const STORE_LINKS = [
   { href: "/about", label: "من نحن" },
 ] as const;
 
+/** The header's own nav. Shared by the desktop bar and the mobile drawer. */
+export const HEADER_LINKS = [
+  { href: "/", label: "الرئيسية" },
+  { href: "/about", label: "عن البركة" },
+  { href: "/#categories", label: "الأقسام" },
+  { href: "/products", label: "كل المنتجات" },
+  // "Do you deliver to me?" decides whether the rest of the shop is worth browsing,
+  // so it sits in the nav rather than only at the bottom of the page.
+  { href: "/delivery-areas", label: "مناطق التوصيل" },
+] as const;
+
+/**
+ * The staff's way in, kept apart from the shop's nav so it can be styled quietly.
+ *
+ * It has to be somewhere on the page: installed to a home screen there is no address
+ * bar to type /login into, and the app is otherwise all storefront. Named for the team
+ * rather than "sign in", which a customer would read as an account they are missing.
+ */
+export const STAFF_LINK = { href: "/login", label: "تسجيل الدخول" } as const;
+
 export const ORDER_STATUS_LABELS = {
   pending: "قيد الانتظار",
   confirmed: "مؤكد",

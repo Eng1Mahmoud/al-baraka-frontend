@@ -42,8 +42,16 @@ export function Footer() {
           <InstallAppCallout tone="light" className="min-w-[180px]" />
         </div>
 
-        <div className="border-t border-white/10 py-4 text-center text-[11px] text-brand-300">
-          © {new Date().getFullYear()} البركة. جميع الحقوق محفوظة.
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-white/10 py-4 text-center text-[11px] text-brand-300">
+          <span>© {new Date().getFullYear()} البركة. جميع الحقوق محفوظة.</span>
+          <span aria-hidden="true">·</span>
+          {/* The shop's only way in for staff. Installed to the home screen there is no
+              address bar to type /login into, and the app is otherwise all storefront —
+              so the door has to be somewhere on the page. Named for the team rather than
+              labelled "sign in", which would read to a customer as an account they need. */}
+          <Link href="/login" className="transition-colors hover:text-white">
+                  تسجيل الدخول
+          </Link>
         </div>
       </div>
     </footer>

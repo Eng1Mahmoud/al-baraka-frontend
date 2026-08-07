@@ -8,13 +8,16 @@
  *
  * The scallops are a fixed-size SVG pattern rather than a stretched shape, so they
  * keep their proportions at every viewport width instead of smearing on wide screens.
- * It renders once per page — the pattern id is a constant, not generated.
+ *
+ * Pass `id` when a page shows more than one — the hero's awning and the nav drawer's
+ * appear together, and two patterns answering to the same name is a document with a
+ * duplicate id in it.
  */
-export function AwningValance({ className }: { className?: string }) {
+export function AwningValance({ className, id = "awning-stripes" }: { className?: string; id?: string }) {
   return (
     <svg aria-hidden width="100%" height="28" className={className}>
       <defs>
-        <pattern id="awning-stripes" width="48" height="28" patternUnits="userSpaceOnUse">
+        <pattern id={id} width="48" height="28" patternUnits="userSpaceOnUse">
           <path
             d="M0 0h48v20a12 8 0 0 0-24 0 12 8 0 0 0-24 0Z"
             fill="var(--color-brand-700)"
@@ -23,7 +26,7 @@ export function AwningValance({ className }: { className?: string }) {
         </pattern>
       </defs>
 
-      <rect width="100%" height="28" fill="url(#awning-stripes)" />
+      <rect width="100%" height="28" fill={`url(#${id})`} />
     </svg>
   );
 }
