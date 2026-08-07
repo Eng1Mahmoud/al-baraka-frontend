@@ -1,0 +1,246 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, ShoppingBasket, TriangleAlert } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { formatPrice } from "@/shared/lib/format";
+import { FormField } from "@/shared/components/forms/FormField";
+import { SubmitButton } from "@/shared/components/forms/SubmitButton";
+import { useCartStore } from "@/features/cart/store/cartStore";
+import { useCartHydrated, useValidatedCart } from "@/features/cart/hooks/useCart";
+import { useDeliveryAreas } from "@/features/delivery-areas/hooks/useDeliveryAreas";
+import { useCreateOrder } from "@/features/orders/hooks/useCreateOrder";
+import { OrderPlaced } from "@/features/orders/components/OrderPlaced";
+import { createCheckoutSchema, type CheckoutFormValues } from "@/features/orders/schemas/checkoutSchema";
+
+export function CheckoutView() {
+  const isHydrated = useCartHydrated();
+  const items = useCartStore((state) => state.items);
+  const { data: areas = [], isLoading: isLoadingAreas } = useDeliveryAreas(true);
+  const [areaId, setAreaId] = useState<string>("");
+
+  // Re-prices the delivery line as soon as an area is picked.
+  const { data: cart, isLoading } = useValidatedCart(areaId || undefined);
+  const createOrder = useCreateOrder();
+  const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(null);
+
+  const requiresArea = areas.length > 0;
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<CheckoutFormValues>({
+    resolver: zodResolver(createCheckoutSchema(requiresArea)),
+    defaultValues: { deliveryAreaId: "" },
+  });
+
+  if (placedOrderNumber) {
+    return <OrderPlaced orderNumber={placedOrderNumber} />;
+  }
+
+  if (!isHydrated || isLoadingAreas || (isLoading && items.length > 0)) {
+    return <Skeleton className="h-96 w-full rounded-2xl" />;
+  }
+
+  if (!items.length || !cart) {
+    return (
+      <div className="rounded-2xl border border-dashed bg-card py-16 text-center">
+        <ShoppingBasket className="mx-auto mb-3 size-10 text-brand-300" aria-hidden />
+        <p className="mb-5 text-sm text-muted-foreground">مفيش حاجة في السلة عشان تكمل الطلب.</p>
+        <Button asChild>
+          <Link href="/products">تصفح المنتجات</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // Checked here as well as on the cart page: a cart can go stale while this form is
+  // being filled in, and an order is created whole or not at all. Better to send the
+  // customer back to the one screen that can fix it than to let them finish typing
+  // and lose it to a toast.
+  if (!cart.canCheckout) {
+    return (
+      <div className="rounded-2xl border border-dashed bg-card py-14 text-center">
+        <TriangleAlert className="mx-auto mb-3 size-10 text-destructive" aria-hidden />
+        <p className="mb-1 font-semibold text-brand-900">في حاجات في السلة اتغيرت</p>
+        <p className="mx-auto mb-5 max-w-sm text-sm text-muted-foreground">
+          منتجات خلصت أو اتشالت من المتجر بعد ما حطيتها في السلة. راجع السلة وصلّحها
+          وارجع كمّل.
+        </p>
+        <Button asChild>
+          <Link href="/cart">
+            راجع السلة
+            <ArrowLeft className="size-4" aria-hidden />
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const onSubmit = async (values: CheckoutFormValues) => {
+    const order = await createOrder.mutateAsync(values);
+    setPlacedOrderNumber(order.orderNumber);
+  };
+
+  return (
+    <>
+      <h1 className="mb-6 font-display text-2xl font-bold text-brand-900 md:text-3xl">إتمام الطلب</h1>
+
+      <div className="grid gap-8 md:grid-cols-[1fr_300px] md:items-start">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-2xl border bg-card p-5">
+          <p className="text-sm text-muted-foreground">
+            مش محتاج حساب — سيب بياناتك وهنتواصل معاك لتأكيد الطلب.
+          </p>
+
+          <FormField label="الاسم" htmlFor="name" error={errors.name?.message} required>
+            <Input id="name" autoComplete="name" placeholder="محمد أحمد" {...register("name")} />
+          </FormField>
+
+          <FormField
+            label="رقم الهاتف"
+            htmlFor="phone"
+            error={errors.phone?.message}
+            hint="هنتصل بيك عليه لتأكيد الطلب"
+            required
+          >
+            <Input
+              id="phone"
+              dir="ltr"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="01012345678"
+              {...register("phone")}
+            />
+          </FormField>
+
+          {requiresArea && (
+            <FormField
+              label="منطقة التوصيل"
+              htmlFor="deliveryAreaId"
+              error={errors.deliveryAreaId?.message}
+              hint="سعر التوصيل بيتحدد حسب المنطقة"
+              required
+            >
+              <Controller
+                control={control}
+                name="deliveryAreaId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setAreaId(value);
+                    }}
+                  >
+                    <SelectTrigger id="deliveryAreaId" className="w-full">
+                      <SelectValue placeholder="اختر المنطقة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {areas.map((area) => (
+                        <SelectItem key={area._id} value={area._id}>
+                          {area.name} — {area.price > 0 ? formatPrice(area.price) : "توصيل مجاني"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormField>
+          )}
+
+          <FormField label="العنوان بالتفصيل" htmlFor="address" error={errors.address?.message} required>
+            <Textarea
+              id="address"
+              rows={3}
+              autoComplete="street-address"
+              placeholder="الشارع، رقم العقار، الدور، الشقة، وأقرب علامة مميزة"
+              {...register("address")}
+            />
+          </FormField>
+
+          <FormField label="ملاحظات للطلب" htmlFor="notes" error={errors.notes?.message}>
+            <Textarea id="notes" rows={2} placeholder="مثال: الطماطم تكون ناضجة" {...register("notes")} />
+          </FormField>
+
+          <SubmitButton isSubmitting={isSubmitting || createOrder.isPending} className="w-full">
+            تأكيد الطلب
+          </SubmitButton>
+        </form>
+
+        <aside className="rounded-2xl border bg-card p-5 md:sticky md:top-24">
+          <h2 className="mb-4 font-semibold text-brand-900">ملخص الطلب</h2>
+
+          <ul className="mb-4 space-y-2 text-sm">
+            {cart.items
+              .filter((item) => !item.removed && !item.issue)
+              .map((item) => (
+                <li key={item.productId} className="flex justify-between gap-3">
+                  <span className="min-w-0 truncate text-muted-foreground">
+                    {item.name} × {item.quantity}
+                  </span>
+                  <span className="shrink-0">{formatPrice(item.lineTotal ?? 0)}</span>
+                </li>
+              ))}
+          </ul>
+
+          <Separator className="my-3" />
+
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">المجموع</dt>
+              <dd>{formatPrice(cart.subtotal)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">
+                التوصيل
+                {cart.selectedArea && (
+                  <span className="block text-xs">{cart.selectedArea.name}</span>
+                )}
+              </dt>
+              <dd>
+                {cart.requiresArea && !cart.selectedArea ? (
+                  <span className="text-xs text-status-pending">اختر المنطقة</span>
+                ) : cart.deliveryFee > 0 ? (
+                  formatPrice(cart.deliveryFee)
+                ) : (
+                  "مجاني"
+                )}
+              </dd>
+            </div>
+            <div className="flex justify-between pt-2 text-base">
+              <dt className="font-semibold text-brand-900">الإجمالي</dt>
+              <dd className="font-extrabold text-brand-700">{formatPrice(cart.total)}</dd>
+            </div>
+          </dl>
+
+          <p className="mt-4 rounded-lg bg-brand-50 p-3 text-xs text-brand-900">
+            طريقة الدفع: كاش عند الاستلام
+          </p>
+
+          <Button asChild variant="ghost" size="sm" className="mt-3 w-full">
+            <Link href="/cart">
+              <ArrowLeft className="size-4 rotate-180" aria-hidden />
+              تعديل السلة
+            </Link>
+          </Button>
+        </aside>
+      </div>
+    </>
+  );
+}

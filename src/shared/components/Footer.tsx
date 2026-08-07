@@ -1,0 +1,51 @@
+import Link from "next/link";
+import { Logo } from "@/shared/components/Logo";
+import { STORE_LINKS } from "@/shared/config/site";
+import { FooterContact } from "@/features/settings/components/FooterContact";
+import { InstallAppCallout } from "@/features/pwa/components/InstallAppCallout";
+
+export function Footer() {
+  return (
+    <footer className="mt-16 bg-brand-900 text-brand-100">
+      <div className="mx-auto w-full max-w-6xl px-4 pt-10 sm:px-6">
+        <div className="flex flex-wrap justify-between gap-8 pb-8">
+          <div className="min-w-[200px]">
+            <Logo tone="light" />
+            <p className="mt-3 max-w-56 text-sm text-brand-300">
+              خضار وفاكهة طازجة توصلك خلال ساعة.
+            </p>
+          </div>
+
+          <nav aria-label="روابط مهمة" className="min-w-[140px]">
+            <h2 className="mb-3 text-xs font-bold text-brand-300">روابط مهمة</h2>
+            <ul className="space-y-2 text-sm">
+              {STORE_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="transition-colors hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="min-w-[180px]">
+            <h2 className="mb-3 text-xs font-bold text-brand-300">تواصل معنا</h2>
+            {/* The only client-side piece of the footer: the shop's phone and hours
+                are edited from the dashboard, so they can't be baked in here. */}
+            <FooterContact />
+          </div>
+
+          {/* Always reachable, on every page, and never dismissed — the home banner
+              can be waved away, but someone who decides later needs somewhere to go.
+              Disappears entirely on browsers that can't install. */}
+          <InstallAppCallout tone="light" className="min-w-[180px]" />
+        </div>
+
+        <div className="border-t border-white/10 py-4 text-center text-[11px] text-brand-300">
+          © {new Date().getFullYear()} البركة. جميع الحقوق محفوظة.
+        </div>
+      </div>
+    </footer>
+  );
+}
