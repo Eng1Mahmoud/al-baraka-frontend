@@ -83,7 +83,11 @@ self.addEventListener("push", (event) => {
       dir: "rtl",
       lang: "ar",
       vibrate: [200, 100, 200],
-      tag: "new-order",
+      // One tag per order, not one for all of them. A shared tag replaces the
+      // notification already on screen, so a quiet evening's three orders arrived
+      // as three buzzes and left one line in the tray — and the two underneath it
+      // were never seen. The order url is the thing that differs.
+      tag: payload.url || "new-order",
       renotify: true,
       data: { url: payload.url || "/dashboard/orders" },
     })
