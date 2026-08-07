@@ -8,7 +8,10 @@ Next.js 16 (App Router) · React 19 · Tailwind v4 · shadcn/ui · TanStack Quer
 npm install
 ```
 
-Copy `.env.example` to `.env.local` and point `NEXT_PUBLIC_API_URL` at the API.
+Copy `.env.example` to `.env.local` and point `API_ORIGIN` at the API — `http://localhost:4000`
+to develop against a local one. Leave `NEXT_PUBLIC_API_URL` as `/api`: the browser calls this app
+and `next.config.ts` forwards from there, which is what keeps the session cookie first-party and
+readable by the `/dashboard` gate in `proxy.ts`.
 
 ```bash
 npm run dev
@@ -92,6 +95,6 @@ There is deliberately **no in-app install button**. One-click install is only po
 ## Deploy to Vercel
 
 1. Import the repo — Next.js is detected automatically.
-2. Environment variables: `NEXT_PUBLIC_API_URL` (the Render URL + `/api`), `NEXT_PUBLIC_SIRV_DOMAIN`.
-3. Add the Vercel domain to `CORS_ORIGIN` on the API, or sign-in cookies will be rejected.
+2. Environment variables: `API_ORIGIN` (the Render URL, no `/api`), `NEXT_PUBLIC_API_URL` (`/api`), `NEXT_PUBLIC_SIRV_DOMAIN`.
+3. Add the Vercel domain to `CORS_ORIGIN` on the API. The browser no longer calls it cross-site, so nothing depends on this — it is there for anyone who points a client straight at the API.
 4. `next.config.ts` already sends no-cache headers for `/sw.js` so service worker updates ship immediately.
