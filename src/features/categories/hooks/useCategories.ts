@@ -14,14 +14,6 @@ export function useCategories() {
   });
 }
 
-export function useCategory(id: string) {
-  return useQuery({
-    queryKey: queryKeys.category(id),
-    queryFn: () => categoriesApi.getById(id),
-    enabled: Boolean(id),
-  });
-}
-
 export function useCreateCategory() {
   const queryClient = useQueryClient();
 
@@ -42,7 +34,6 @@ export function useUpdateCategory(id: string) {
     mutationFn: (values: Partial<CategoryFormValues>) => categoriesApi.update(id, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
-      queryClient.invalidateQueries({ queryKey: queryKeys.category(id) });
       toast.success("تم حفظ التغييرات");
     },
     onError: (error) => toast.error(getErrorMessage(error)),

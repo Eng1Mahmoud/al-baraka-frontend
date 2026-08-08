@@ -14,7 +14,6 @@ export const createQueryClient = () =>
 /** Every query key in the app starts here, so invalidation stays predictable. */
 export const queryKeys = {
   categories: ["categories"] as const,
-  category: (id: string) => ["categories", id] as const,
   products: (filters?: object) => ["products", filters ?? {}] as const,
   product: (id: string) => ["products", id] as const,
   orders: (filters?: object) => ["orders", filters ?? {}] as const,

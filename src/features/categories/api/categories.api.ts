@@ -8,11 +8,6 @@ export const categoriesApi = {
     return data;
   },
 
-  getById: async (id: string): Promise<Category> => {
-    const { data } = await apiClient.get<Category>(`/categories/${id}`);
-    return data;
-  },
-
   create: async (values: CategoryFormValues): Promise<Category> => {
     const { data } = await apiClient.post<Category>("/categories", values);
     return data;

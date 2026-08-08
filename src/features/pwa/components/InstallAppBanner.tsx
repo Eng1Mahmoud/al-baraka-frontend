@@ -10,18 +10,6 @@ import {
 } from "@/features/pwa/components/InstallAppButton";
 import { useInstallPrompt } from "@/features/pwa/hooks/useInstallPrompt";
 
-/**
- * The home page's offer to install.
- *
- * Shows the brand mark rather than a generic download glyph: it's the thing that will
- * actually appear on their screen, so it previews the outcome instead of describing
- * it. Rendered from `BrandMark`, not the icon PNG — same artwork, one less request,
- * and it can't be served stale from the image cache after the logo changes.
- *
- * Renders nothing unless the browser can install, nothing inside the installed app,
- * and nothing for two weeks after it's dismissed — a shop that asks on every visit
- * is worse than one that asks once.
- */
 export function InstallAppBanner() {
   const { canInstall, needsIosSteps, isDismissed, dismiss } = useInstallPrompt();
 

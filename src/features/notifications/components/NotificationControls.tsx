@@ -6,14 +6,7 @@ import { useNewOrderAlert } from "@/features/notifications/hooks/useNewOrderAler
 import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
 import type { Order } from "@/features/orders/types/order";
 
-/**
- * One control, because there is now one alert: the system notification. It rings the
- * same way whether this tab is focused or the app is closed, so there is no second
- * in-page sound to switch on separately.
- *
- * When it's off the button says so plainly — with no notification there is no alert
- * at all, only the list quietly updating.
- */
+
 export function NotificationControls({ latestOrder }: { latestOrder?: Order }) {
   useNewOrderAlert(latestOrder);
   const { isSupported, isSubscribed, isWorking, subscribe, unsubscribe } = usePushSubscription();

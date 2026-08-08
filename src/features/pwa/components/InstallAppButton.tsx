@@ -13,14 +13,6 @@ interface InstallAppButtonProps {
   className?: string;
 }
 
-/**
- * The install action itself, wherever it appears.
- *
- * Renders nothing on a browser that can't install and nothing inside the installed
- * app — so a caller can drop it in without guarding. On iOS Safari, where there is
- * no install API at all, it shows the two menu taps instead of a button that would
- * do nothing.
- */
 export function InstallAppButton({ tone = "dark", size = "sm", className }: InstallAppButtonProps) {
   const { canInstall, needsIosSteps, install } = useInstallPrompt();
 

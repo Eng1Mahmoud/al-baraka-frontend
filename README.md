@@ -8,7 +8,7 @@ Next.js 16 (App Router) · React 19 · Tailwind v4 · shadcn/ui · TanStack Quer
 npm install
 ```
 
-Copy `.env.example` to `.env.local` and point `NEXT_PUBLIC_API_URL` at the API.
+Set `NEXT_PUBLIC_API_URL` (the API's base URL, including `/api`) and `NEXT_PUBLIC_SIRV_DOMAIN` in `.env` — the committed `.env` already points at a local API on `:4000`.
 
 ```bash
 npm run dev
@@ -33,7 +33,7 @@ src/
 │   ├── admins/
 │   ├── cart/store/       zustand + localStorage guest cart
 │   ├── auth/
-│   ├── notifications/    sound alert + web push subscription
+│   ├── notifications/    web push subscription + new-order toast
 │   ├── dashboard/        sidebar, header, overview tiles
 │   └── pwa/              service worker registration
 ├── shared/
@@ -73,7 +73,14 @@ Two supporting paths keep the screen itself current, neither of which alerts:
 
 The site is a working PWA — manifest, icons in `public/icons/`, and a service worker registered from the root layout (`ServiceWorkerRegistrar`). Users install it through the browser's own control: the ⊕ icon in Chrome/Edge's address bar, or Share → Add to Home Screen on iOS.
 
-There is deliberately **no in-app install button**. One-click install is only possible in Chromium browsers (Chrome, Edge, Opera, Samsung); Firefox desktop removed PWA install entirely and Safari never implemented the prompt API, so an in-app button could not behave consistently. The service worker is still required for order push notifications.
+The app is also offered in-page, in three places: a banner on the home page, a callout in the footer, and a callout after checkout — all driven by `useInstallPrompt` and worded from `features/pwa/config.ts`.
+
+One-click install is only possible in Chromium browsers (Chrome, Edge, Opera, Samsung), which fire `beforeinstallprompt`. Safari never implemented that API and Firefox desktop removed PWA install entirely, so the hook reports the two worlds separately: `canInstall` shows a real install button, `needsIosSteps` shows the Share → Add to Home Screen path instead. Neither shows once the app is already running standalone.
+
+Two details that are easy to break:
+
+- The `beforeinstallprompt` event is captured by an inline `beforeInteractive` script in the root layout, not by a React effect. Chrome fires it once, early — often while the bundle is still downloading — and never re-sends it, so a listener attached from an effect misses it entirely and the button never appears.
+- Dismissing is a 14-day snooze, not a permanent hide, so someone who taps X once (or installs and later removes the app) is offered it again.
 
 ## Pages
 
@@ -84,9 +91,9 @@ There is deliberately **no in-app install button**. One-click install is only po
 ## Before launch
 
 - [ ] Replace the generated icons in `public/icons/` with the real brand mark (same filenames).
-- [ ] Replace the placeholder phone number in `src/shared/config/site.ts`.
-- [ ] Swap the text logo in `src/shared/components/Logo.tsx` for the real mark.
-- [ ] Write the `/about`, `/terms` and `/privacy` pages linked in the footer.
+- [ ] Swap the drawn ب mark in `src/shared/components/BrandMark.tsx` for the real one, if the shop has its own.
+- [ ] Fill in the shop's phone, delivery fee, minimum order and working hours from `/dashboard/settings` — none of these live in code.
+- [ ] Add the delivery areas and their fees — same page, `/dashboard/settings`.
 
 ## Deploy to Vercel
 

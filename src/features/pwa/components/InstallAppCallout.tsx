@@ -12,14 +12,6 @@ interface InstallAppCalloutProps {
   className?: string;
 }
 
-/**
- * A titled block offering the install, for places that need their own heading and
- * spacing — the footer column, the order confirmation.
- *
- * It owns the whole block rather than just the button so that a browser which can't
- * install leaves no orphaned heading behind. `isDismissed` is deliberately ignored:
- * the dismiss on the home banner silences that banner, not every mention of the app.
- */
 export function InstallAppCallout({
   body = INSTALL_COPY.body,
   tone = "dark",

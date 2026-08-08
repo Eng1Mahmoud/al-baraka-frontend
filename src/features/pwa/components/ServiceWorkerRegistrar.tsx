@@ -1,15 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-
-/**
- * Registers the service worker that powers offline caching and push notifications.
- *
- * Only in production. In development the worker is actively harmful: it serves
- * `/_next/static` chunks cache-first, and dev chunk filenames repeat between builds,
- * so an edited page keeps rendering the previous build's JavaScript. Any worker left
- * over from a previous run is unregistered and its caches dropped.
- */
 export function ServiceWorkerRegistrar() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;

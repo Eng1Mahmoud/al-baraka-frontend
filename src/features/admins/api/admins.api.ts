@@ -23,10 +23,6 @@ export const adminsApi = {
     return data;
   },
 
-  resetPassword: async (id: string, newPassword: string): Promise<void> => {
-    await apiClient.patch(`/admins/${id}/password`, { newPassword });
-  },
-
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(`/admins/${id}`);
   },
