@@ -1,18 +1,4 @@
-/**
- * The striped awning that hangs over the top of the hero.
- *
- * Every produce stall in the market has one, so it does the job a decorative wave
- * divider would do on a generic page — separating the sticky header from the hero —
- * while saying where the shop actually is. Scallops, not a wave: the shape has to
- * read as canvas.
- *
- * The scallops are a fixed-size SVG pattern rather than a stretched shape, so they
- * keep their proportions at every viewport width instead of smearing on wide screens.
- *
- * Pass `id` when a page shows more than one — the hero's awning and the nav drawer's
- * appear together, and two patterns answering to the same name is a document with a
- * duplicate id in it.
- */
+
 export function AwningValance({ className, id = "awning-stripes" }: { className?: string; id?: string }) {
   return (
     <svg aria-hidden width="100%" height="28" className={className}>

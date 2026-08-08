@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         // Product images are served from the Sirv account configured in .env
-        hostname: process.env.NEXT_PUBLIC_SIRV_DOMAIN ?? "**.sirv.com",
+        hostname: process.env.NEXT_PUBLIC_SIRV_DOMAIN as string ,
         pathname: "/**",
       },
     ],

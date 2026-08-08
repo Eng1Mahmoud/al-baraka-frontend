@@ -11,18 +11,6 @@ import { Logo } from "@/shared/components/Logo";
 import { AwningValance } from "@/shared/components/illustrations/AwningValance";
 import { HEADER_LINKS } from "@/shared/config/site";
 
-/**
- * The header's nav on small screens.
- *
- * The bar itself only has room for the logo and the cart, and the links it drops were
- * unreachable anywhere else — which on a phone is the whole shop, and is where nearly
- * all of it is browsed.
- *
- * It opens as the stall does: the awning hangs over the header and the shop's sections
- * are the goods laid out beneath it. The same valance as the hero, so pulling the menu
- * out lands somewhere the customer has already been rather than in a panel that could
- * belong to any shop.
- */
 export function StoreMobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();

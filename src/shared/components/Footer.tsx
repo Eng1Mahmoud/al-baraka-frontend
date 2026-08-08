@@ -31,24 +31,17 @@ export function Footer() {
 
           <div className="min-w-[180px]">
             <h2 className="mb-3 text-xs font-bold text-brand-300">تواصل معنا</h2>
-            {/* The only client-side piece of the footer: the shop's phone and hours
-                are edited from the dashboard, so they can't be baked in here. */}
             <FooterContact />
           </div>
 
-          {/* Always reachable, on every page, and never dismissed — the home banner
-              can be waved away, but someone who decides later needs somewhere to go.
-              Disappears entirely on browsers that can't install. */}
+        
           <InstallAppCallout tone="light" className="min-w-[180px]" />
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-white/10 py-4 text-center text-[11px] text-brand-300">
           <span>© {new Date().getFullYear()} البركة. جميع الحقوق محفوظة.</span>
           <span aria-hidden="true">·</span>
-          {/* The shop's only way in for staff. Installed to the home screen there is no
-              address bar to type /login into, and the app is otherwise all storefront —
-              so the door has to be somewhere on the page. Named for the team rather than
-              labelled "sign in", which would read to a customer as an account they need. */}
+      
           <Link href="/login" className="transition-colors hover:text-white">
                   تسجيل الدخول
           </Link>

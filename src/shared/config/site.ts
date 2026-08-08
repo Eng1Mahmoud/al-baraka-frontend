@@ -3,10 +3,7 @@
  * fee, working hours) lives in the Settings document and is edited from the
  * dashboard — these are only the fallbacks used before settings load.
  */
-export const STORE_PLACEHOLDERS = {
-  phone: "01XXXXXXXXX",
-  workingHours: "يوميًا من 9 ص إلى 11 م",
-} as const;
+
 
 export const STORE_LINKS = [
   { href: "/products", label: "كل المنتجات" },

@@ -1,84 +1,65 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-// Placeholder chime — swap the file for the shop's own sound, keeping the path.
-const SOUND_URL = "/sounds/new-order.mp3";
-const SOUND_ENABLED_KEY = "al-baraka-sound-enabled";
-
-/** Whether sound is on is browser state (localStorage), so React subscribes to it. */
-const soundPreference = {
-  listeners: new Set<() => void>(),
-
-  subscribe(onChange: () => void) {
-    soundPreference.listeners.add(onChange);
-    return () => soundPreference.listeners.delete(onChange);
-  },
-
-  isEnabled: () => localStorage.getItem(SOUND_ENABLED_KEY) === "true",
-
-  enable() {
-    localStorage.setItem(SOUND_ENABLED_KEY, "true");
-    soundPreference.listeners.forEach((listener) => listener());
-  },
-};
+import { formatPrice } from "@/shared/lib/format";
+import type { Order } from "@/features/orders/types/order";
 
 /**
- * Plays a sound when the newest order id changes.
+ * Keeps the dashboard in step with new orders.
  *
- * Browsers block audio until the user has interacted with the page, so the sound
- * stays off until an admin enables it once — `enableSound` doubles as that gesture.
- * When the tab is closed the Web Push notification takes over instead.
+ * The alert itself is the system notification raised by the service worker — one
+ * mechanism and one sound whether the tab is focused, buried behind others, or
+ * closed entirely. This hook covers only what a notification can't: refreshing the
+ * list on screen the moment a push lands, and putting the order one click away for
+ * an admin who is already looking at it.
  */
-export function useNewOrderAlert(latestOrderId: string | undefined, latestOrderLabel?: string) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+export function useNewOrderAlert(latestOrder?: Order) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const lastSeenRef = useRef<string | undefined>(undefined);
 
-  const isSoundEnabled = useSyncExternalStore(
-    soundPreference.subscribe,
-    soundPreference.isEnabled,
-    () => false
-  );
+  // The push arrives in the worker, which forwards it here, so the list updates the
+  // instant the order lands instead of waiting for the next poll.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    const onMessage = (event: MessageEvent) => {
+      if (event.data?.type !== "new-order") return;
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    };
+
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
+  }, [queryClient]);
 
   useEffect(() => {
-    audioRef.current = new Audio(SOUND_URL);
-    audioRef.current.preload = "auto";
-  }, []);
+    if (!latestOrder) return;
 
-  const enableSound = async () => {
-    const audio = (audioRef.current ??= new Audio(SOUND_URL));
-
-    try {
-      // Playing (then resetting) inside the click satisfies the autoplay policy.
-      await audio.play();
-      audio.pause();
-      audio.currentTime = 0;
-      soundPreference.enable();
-      toast.success("تم تفعيل صوت الطلبات الجديدة");
-    } catch {
-      toast.error("المتصفح منع تشغيل الصوت، حاول مرة أخرى");
-    }
-  };
-
-  useEffect(() => {
-    if (!latestOrderId) return;
-
-    // First poll after mount only records the baseline — no alert for existing orders.
+    // The first pass after mount records the baseline — existing orders aren't new.
     if (lastSeenRef.current === undefined) {
-      lastSeenRef.current = latestOrderId;
+      lastSeenRef.current = latestOrder._id;
       return;
     }
 
-    if (lastSeenRef.current === latestOrderId) return;
-    lastSeenRef.current = latestOrderId;
+    if (lastSeenRef.current === latestOrder._id) return;
+    lastSeenRef.current = latestOrder._id;
 
-    toast.info(latestOrderLabel ? `طلب جديد: ${latestOrderLabel}` : "وصل طلب جديد");
-
-    if (isSoundEnabled) {
-      audioRef.current?.play().catch(() => undefined);
-    }
-  }, [latestOrderId, latestOrderLabel, isSoundEnabled]);
-
-  return { isSoundEnabled, enableSound };
+    toast(`طلب جديد · ${latestOrder.customer.name}`, {
+      // Keyed by order, so the same order can never stack up two cards.
+      id: `new-order-${latestOrder._id}`,
+      description: `${latestOrder.orderNumber} · ${formatPrice(latestOrder.total)}`,
+      // Someone just told an order arrived is going to reach for it. Sonner closes
+      // the toast itself once the action runs.
+      action: {
+        label: "افتح الطلب",
+        onClick: () => router.push(`/dashboard/orders/${latestOrder._id}`),
+      },
+      // It can land while nobody is at the screen; the default few seconds would
+      // routinely miss its reader.
+      duration: 20_000,
+    });
+  }, [latestOrder, router]);
 }

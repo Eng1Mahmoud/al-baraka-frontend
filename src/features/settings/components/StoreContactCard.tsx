@@ -1,7 +1,6 @@
 "use client";
 
 import { Clock, Phone, Truck } from "lucide-react";
-import { STORE_PLACEHOLDERS } from "@/shared/config/site";
 import { useSettings } from "@/features/settings/hooks/useSettings";
 import { useDeliveryAreas } from "@/features/delivery-areas/hooks/useDeliveryAreas";
 
@@ -10,8 +9,8 @@ export function StoreContactCard() {
   const { data: settings } = useSettings();
   const { data: areas = [] } = useDeliveryAreas(true);
 
-  const phone = settings?.storePhone || STORE_PLACEHOLDERS.phone;
-  const hours = settings?.workingHours || STORE_PLACEHOLDERS.workingHours;
+  const phone = settings?.storePhone 
+  const hours = settings?.workingHours 
 
   return (
     <div className="rounded-2xl bg-brand-900 p-6 text-brand-100 sm:p-8">
@@ -25,7 +24,7 @@ export function StoreContactCard() {
           </dt>
           <dd>
             <a
-              href={`tel:${phone.replace(/\s/g, "")}`}
+              href={`tel:${phone?.replace(/\s/g, "")}`}
               dir="ltr"
               className="text-sm hover:text-white"
             >

@@ -9,6 +9,7 @@ export const authApi = {
       "/auth/login",
       values
     );
+    console.log("login response data:", data);
     return data;
   },
 

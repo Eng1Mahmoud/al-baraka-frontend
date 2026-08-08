@@ -1,17 +1,5 @@
 import { BRASS, WOOD } from "@/shared/components/illustrations/materials";
 
-/**
- * The stall counter — the home page's opening image.
- *
- * The two things a customer actually watches at a greengrocer are the crate the
- * produce comes out of and the scale it goes onto, so those are the whole scene:
- * a brass balance with produce in one pan and weights in the other, resting level,
- * and a crate still piled above its rim. The PLU sticker is the same motif used on
- * product cards, so the drawing and the catalogue share a vocabulary.
- *
- * Drawn rather than photographed: the shop has no photography yet, and SVG stays
- * sharp at any size, weighs nothing, and reads the brand tokens directly.
- */
 export function MarketStallIllustration({ className }: { className?: string }) {
   return (
     <svg

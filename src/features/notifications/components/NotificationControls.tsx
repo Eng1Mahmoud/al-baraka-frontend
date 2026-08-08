@@ -1,56 +1,56 @@
 "use client";
 
-import { Bell, BellOff, Volume2, VolumeX } from "lucide-react";
+import { Bell, BellOff, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNewOrderAlert } from "@/features/notifications/hooks/useNewOrderAlert";
 import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
 import type { Order } from "@/features/orders/types/order";
 
 /**
- * Two separate switches, because they cover different situations:
- * sound only works while this tab is open, push works when it is closed.
+ * One control, because there is now one alert: the system notification. It rings the
+ * same way whether this tab is focused or the app is closed, so there is no second
+ * in-page sound to switch on separately.
+ *
+ * When it's off the button says so plainly — with no notification there is no alert
+ * at all, only the list quietly updating.
  */
 export function NotificationControls({ latestOrder }: { latestOrder?: Order }) {
-  const { isSoundEnabled, enableSound } = useNewOrderAlert(latestOrder?._id, latestOrder?.orderNumber);
+  useNewOrderAlert(latestOrder);
   const { isSupported, isSubscribed, isWorking, subscribe, unsubscribe } = usePushSubscription();
 
-  return (
-    <div className="flex shrink-0 items-center gap-1.5">
-      {!isSoundEnabled ? (
-        <Button variant="outline" size="sm" onClick={enableSound}>
-          <VolumeX className="size-4" aria-hidden />
-          <span className="hidden sm:inline">تفعيل الصوت</span>
-        </Button>
-      ) : (
-        <span
-          className="flex items-center gap-1.5 text-xs text-brand-700"
-          title="صوت الطلبات الجديدة مفعّل"
-        >
-          <Volume2 className="size-4" aria-hidden />
-          <span className="hidden sm:inline">الصوت مفعّل</span>
-        </span>
-      )}
+  if (!isSupported) {
+    return (
+      <span className="hidden text-xs text-muted-foreground sm:inline">
+        المتصفح ده مايدعمش الإشعارات
+      </span>
+    );
+  }
 
-      {isSupported && (
-        <Button
-          variant={isSubscribed ? "ghost" : "default"}
-          size="sm"
-          disabled={isWorking}
-          onClick={isSubscribed ? unsubscribe : subscribe}
-        >
-          {isSubscribed ? (
-            <>
-              <BellOff className="size-4" aria-hidden />
-              <span className="hidden sm:inline">إيقاف الإشعارات</span>
-            </>
-          ) : (
-            <>
-              <Bell className="size-4" aria-hidden />
-              <span className="hidden sm:inline">تفعيل الإشعارات</span>
-            </>
-          )}
-        </Button>
+  if (isSubscribed) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={isWorking}
+        onClick={unsubscribe}
+        className="text-brand-700"
+        title="الإشعارات مفعّلة على الجهاز ده — اضغط لإيقافها"
+      >
+        <BellRing className="size-4" aria-hidden />
+        <span className="hidden sm:inline">الإشعارات مفعّلة</span>
+      </Button>
+    );
+  }
+
+  return (
+    <Button size="sm" disabled={isWorking} onClick={subscribe} className="shrink-0">
+      {isWorking ? (
+        <Bell className="size-4 animate-pulse" aria-hidden />
+      ) : (
+        <BellOff className="size-4" aria-hidden />
       )}
-    </div>
+      <span className="hidden sm:inline">فعّل تنبيه الطلبات</span>
+      <span className="sm:hidden">تنبيه</span>
+    </Button>
   );
 }

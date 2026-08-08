@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/shared/components/Logo";
 import { StoreMobileNav } from "@/shared/components/StoreMobileNav";
 import { CartButton } from "@/features/cart/components/CartButton";
-import { HEADER_LINKS, STAFF_LINK } from "@/shared/config/site";
+import { HEADER_LINKS } from "@/shared/config/site";
 
 export function Header() {
   return (

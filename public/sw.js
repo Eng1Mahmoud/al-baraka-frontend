@@ -75,22 +75,32 @@ self.addEventListener("push", (event) => {
     payload = { title: "البركة", body: event.data.text() };
   }
 
+  // Tell any open dashboard tab as well, so the list refreshes the moment the order
+  // lands instead of on the next poll. The notification is still shown either way —
+  // it is the single alert for every case, focused tab or closed app alike.
+  const notifyOpenTabs = self.clients
+    .matchAll({ type: "window", includeUncontrolled: true })
+    .then((clients) => clients.forEach((client) => client.postMessage({ type: "new-order", payload })));
+
   event.waitUntil(
-    self.registration.showNotification(payload.title || "طلب جديد", {
-      body: payload.body || "",
-      icon: "/icons/icon-192.png",
-      badge: "/icons/icon-192.png",
-      dir: "rtl",
-      lang: "ar",
-      vibrate: [200, 100, 200],
-      // One tag per order, not one for all of them. A shared tag replaces the
-      // notification already on screen, so a quiet evening's three orders arrived
-      // as three buzzes and left one line in the tray — and the two underneath it
-      // were never seen. The order url is the thing that differs.
-      tag: payload.url || "new-order",
-      renotify: true,
-      data: { url: payload.url || "/dashboard/orders" },
-    })
+    Promise.all([
+      notifyOpenTabs,
+      self.registration.showNotification(payload.title || "طلب جديد", {
+        body: payload.body || "",
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-192.png",
+        dir: "rtl",
+        lang: "ar",
+        vibrate: [200, 100, 200],
+        // One tag per order, not one for all of them. A shared tag replaces the
+        // notification already on screen, so a quiet evening's three orders arrived
+        // as three buzzes and left one line in the tray — and the two underneath it
+        // were never seen. The order url is the thing that differs.
+        tag: payload.url || "new-order",
+        renotify: true,
+        data: { url: payload.url || "/dashboard/orders" },
+      }),
+    ])
   );
 });
 

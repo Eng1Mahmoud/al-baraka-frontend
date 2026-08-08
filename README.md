@@ -58,16 +58,16 @@ Fonts: Changa for headings (`font-display`), IBM Plex Sans Arabic for body.
 
 ## Orders and notifications
 
-The dashboard polls `GET /api/orders` every 5 seconds (`refetchInterval` in `useOrders`), including while the tab is in the background. Two separate alerts, because they cover different situations:
+**One alert for every situation: the Web Push system notification.** It rings the same way whether the dashboard is focused, buried behind other tabs, or closed with the screen off — so there is a single thing to enable ("فعّل تنبيه الطلبات") and a single sound to learn.
 
-| Situation | What alerts | Enabled by |
-|---|---|---|
-| Dashboard tab open | custom sound + toast | "تفعيل الصوت" — one click, required by browser autoplay rules |
-| Tab closed / screen off | Web Push system notification | "تفعيل الإشعارات" — asks for permission, subscribes the device |
+An in-page chime was tried first and removed. It only ever worked in the one case that needs an alert least — someone already looking at the screen — while needing its own enable button (browser autoplay rules) and teaching admins two different sounds for the same event.
 
-`public/sounds/new-order.wav` is a generated placeholder chime — replace the file, keep the path.
+Two supporting paths keep the screen itself current, neither of which alerts:
 
-**On iOS, push only works after the PWA is installed to the home screen** (iOS 16.4+). The install button matters there, it isn't a nice-to-have.
+- `sw.js` forwards every push to open tabs via `postMessage`, and `useNewOrderAlert` invalidates the orders query — the list updates the moment the order lands.
+- `useOrders` polls `GET /api/orders` every 5 seconds in the background, as a safety net if a push is delayed or notifications were never enabled.
+
+**On iOS, push only works after the PWA is installed to the home screen** (iOS 16.4+). Installing matters there, it isn't a nice-to-have.
 
 ## Installability
 
@@ -86,7 +86,6 @@ There is deliberately **no in-app install button**. One-click install is only po
 - [ ] Replace the generated icons in `public/icons/` with the real brand mark (same filenames).
 - [ ] Replace the placeholder phone number in `src/shared/config/site.ts`.
 - [ ] Swap the text logo in `src/shared/components/Logo.tsx` for the real mark.
-- [ ] Replace `public/sounds/new-order.wav` with the shop's own alert sound.
 - [ ] Write the `/about`, `/terms` and `/privacy` pages linked in the footer.
 
 ## Deploy to Vercel

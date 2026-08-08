@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ,
   withCredentials: true, // sends the httpOnly auth cookie to the API
   headers: { "Content-Type": "application/json" },
 });

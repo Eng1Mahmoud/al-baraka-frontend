@@ -4,13 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ---------------------------------------------------------------
-   Al-Baraka brand tokens
-   Green is the brand and carries every primary action. Fruit colors
-   are accents only (badges, category chips) — never primary buttons.
-   Order statuses get their own scale so a status is never confused
-   with a fruit accent at a glance.
----------------------------------------------------------------- */
 @theme {
   --color-brand-900: #1f4b27;
   --color-brand-700: #2f6b3c;
