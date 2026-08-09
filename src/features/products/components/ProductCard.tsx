@@ -51,7 +51,7 @@ export function ProductCard({ product, highlight = null }: ProductCardProps) {
           )}
 
           {soldOut && (
-            <span className="absolute top-2 start-2 rounded-full bg-brand-900/90 px-2.5 py-1 text-[11px] font-bold text-white">
+            <span className="absolute top-2 start-2 rounded-full bg-panel/90 px-2.5 py-1 text-[11px] font-bold text-white">
               {SOLD_OUT_LABEL}
             </span>
           )}

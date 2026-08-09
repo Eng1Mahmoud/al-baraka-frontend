@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,59 +14,71 @@ import { formatDate, formatPrice } from "@/shared/lib/format";
 import { getErrorMessage } from "@/shared/lib/apiClient";
 import { ordersApi } from "@/features/orders/api/orders.api";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
-import type { Order } from "@/features/orders/types/order";
 
 const trackSchema = z.object({
-  orderNumber: z.string().min(4, "رقم الطلب مطلوب"),
-  phone: z.string().regex(/^01[0-2,5]\d{8}$/, "رقم الهاتف غير صحيح"),
+  orderNumber: z.string().trim().min(4, "رقم الطلب مطلوب"),
 });
 
 type TrackFormValues = z.infer<typeof trackSchema>;
 
 export function TrackOrderView() {
   const searchParams = useSearchParams();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  // Prefilled from the link the customer is sent after checkout, and looked up
+  // straight away — with only the number to go on there is nothing left to fill in,
+  // so asking them to press a button first would be asking for nothing.
+  const linkedOrder = searchParams.get("order")?.trim() ?? "";
+  const [lookup, setLookup] = useState(linkedOrder);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<TrackFormValues>({
     resolver: zodResolver(trackSchema),
-    // The order number can be prefilled from the link; the phone never is — it's
-    // the thing that proves the order belongs to whoever is asking.
-    defaultValues: { orderNumber: searchParams.get("order") ?? "" },
+    defaultValues: { orderNumber: linkedOrder },
   });
 
-  const onSubmit = async (values: TrackFormValues) => {
-    setError(null);
-    try {
-      setOrder(await ordersApi.track(values.orderNumber, values.phone));
-    } catch (requestError) {
-      setOrder(null);
-      setError(getErrorMessage(requestError));
-    }
-  };
+  const {
+    data: order,
+    isFetching,
+    error,
+  } = useQuery({
+    queryKey: ["orders", "track", lookup],
+    queryFn: () => ordersApi.track(lookup),
+    enabled: lookup.length >= 4,
+    retry: false,
+  });
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-2xl border bg-card p-5">
-        <FormField label="رقم الطلب" htmlFor="orderNumber" error={errors.orderNumber?.message} required>
-          <Input id="orderNumber" dir="ltr" placeholder="AB-260807-0001" {...register("orderNumber")} />
+      <form
+        onSubmit={handleSubmit((values) => setLookup(values.orderNumber))}
+        className="space-y-4 rounded-2xl border bg-card p-5"
+      >
+        <FormField
+          label="رقم الطلب"
+          htmlFor="orderNumber"
+          error={errors.orderNumber?.message}
+          hint="هتلاقيه في رسالة تأكيد الطلب"
+          required
+        >
+          <Input
+            id="orderNumber"
+            dir="ltr"
+            autoComplete="off"
+            placeholder="AB-260807-0001"
+            {...register("orderNumber")}
+          />
         </FormField>
 
-        <FormField label="رقم الهاتف" htmlFor="phone" error={errors.phone?.message} required>
-          <Input id="phone" dir="ltr" inputMode="tel" placeholder="01012345678" {...register("phone")} />
-        </FormField>
-
-        <SubmitButton isSubmitting={isSubmitting} className="w-full">
+        <SubmitButton isSubmitting={isFetching} className="w-full">
           اعرض الطلب
         </SubmitButton>
 
         {error && (
           <p role="alert" className="text-sm text-destructive">
-            {error}
+            {getErrorMessage(error)}
           </p>
         )}
       </form>

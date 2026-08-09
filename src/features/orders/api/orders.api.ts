@@ -5,6 +5,7 @@ import type {
   OrderStats,
   OrderStatus,
   PaymentStatus,
+  TrackedOrder,
 } from "@/features/orders/types/order";
 import type { CheckoutFormValues } from "@/features/orders/schemas/checkoutSchema";
 
@@ -24,8 +25,8 @@ export const ordersApi = {
     return data;
   },
 
-  track: async (orderNumber: string, phone: string): Promise<Order> => {
-    const { data } = await apiClient.get<Order>("/orders/track", { params: { orderNumber, phone } });
+  track: async (orderNumber: string): Promise<TrackedOrder> => {
+    const { data } = await apiClient.get<TrackedOrder>("/orders/track", { params: { orderNumber } });
     return data;
   },
 

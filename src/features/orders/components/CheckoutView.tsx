@@ -8,7 +8,6 @@ import { ArrowLeft, ShoppingBasket, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -25,6 +24,7 @@ import { useCartHydrated, useValidatedCart } from "@/features/cart/hooks/useCart
 import { useDeliveryAreas } from "@/features/delivery-areas/hooks/useDeliveryAreas";
 import { useCreateOrder } from "@/features/orders/hooks/useCreateOrder";
 import { OrderPlaced } from "@/features/orders/components/OrderPlaced";
+import { CheckoutSkeleton } from "@/features/orders/components/CheckoutSkeleton";
 import { createCheckoutSchema, type CheckoutFormValues } from "@/features/orders/schemas/checkoutSchema";
 
 export function CheckoutView() {
@@ -54,8 +54,11 @@ export function CheckoutView() {
     return <OrderPlaced orderNumber={placedOrderNumber} />;
   }
 
+  // The local cart already knows how many lines the summary will have, so the outline
+  // is the right height before the server has priced anything. Before hydration it
+  // hasn't been read yet and two is the safe guess — it holds for one render.
   if (!isHydrated || isLoadingAreas || (isLoading && items.length > 0)) {
-    return <Skeleton className="h-96 w-full rounded-2xl" />;
+    return <CheckoutSkeleton lines={isHydrated ? items.length : 2} withArea={requiresArea || isLoadingAreas} />;
   }
 
   if (!items.length || !cart) {

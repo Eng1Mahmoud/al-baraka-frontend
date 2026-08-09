@@ -26,7 +26,7 @@ export function InstallAppCallout({
       <h2
         className={cn(
           "mb-1 text-xs font-bold",
-          tone === "light" ? "text-brand-300" : "text-brand-900"
+          tone === "light" ? "text-panel-muted" : "text-brand-900"
         )}
       >
         {INSTALL_COPY.title}
@@ -35,7 +35,7 @@ export function InstallAppCallout({
       <p
         className={cn(
           "mb-3 text-xs",
-          tone === "light" ? "text-brand-100/80" : "text-muted-foreground"
+          tone === "light" ? "text-panel-foreground/80" : "text-muted-foreground"
         )}
       >
         {body}

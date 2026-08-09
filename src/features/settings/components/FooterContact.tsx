@@ -31,7 +31,7 @@ export function FooterContact() {
         <span dir="ltr">{phone}</span>
       </a>
 
-      <p className="mt-2 flex items-start gap-2 text-xs text-brand-300">
+      <p className="mt-2 flex items-start gap-2 text-xs text-panel-muted">
         <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
         {hours}
       </p>

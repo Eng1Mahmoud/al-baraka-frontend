@@ -6,18 +6,18 @@ import { InstallAppCallout } from "@/features/pwa/components/InstallAppCallout";
 
 export function Footer() {
   return (
-    <footer className="mt-16 bg-brand-900 text-brand-100">
+    <footer className="mt-16 bg-panel text-panel-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 pt-10 sm:px-6">
         <div className="flex flex-wrap justify-between gap-8 pb-8">
           <div className="min-w-[200px]">
             <Logo tone="light" />
-            <p className="mt-3 max-w-56 text-sm text-brand-300">
+            <p className="mt-3 max-w-56 text-sm text-panel-muted">
               خضار وفاكهة طازجة توصلك خلال ساعة.
             </p>
           </div>
 
           <nav aria-label="روابط مهمة" className="min-w-[140px]">
-            <h2 className="mb-3 text-xs font-bold text-brand-300">روابط مهمة</h2>
+            <h2 className="mb-3 text-xs font-bold text-panel-muted">روابط مهمة</h2>
             <ul className="space-y-2 text-sm">
               {STORE_LINKS.map((link) => (
                 <li key={link.href}>
@@ -30,7 +30,7 @@ export function Footer() {
           </nav>
 
           <div className="min-w-[180px]">
-            <h2 className="mb-3 text-xs font-bold text-brand-300">تواصل معنا</h2>
+            <h2 className="mb-3 text-xs font-bold text-panel-muted">تواصل معنا</h2>
             <FooterContact />
           </div>
 
@@ -38,7 +38,7 @@ export function Footer() {
           <InstallAppCallout tone="light" className="min-w-[180px]" />
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-white/10 py-4 text-center text-[11px] text-brand-300">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-white/10 py-4 text-center text-[11px] text-panel-muted">
           <span>© {new Date().getFullYear()} البركة. جميع الحقوق محفوظة.</span>
           <span aria-hidden="true">·</span>
       

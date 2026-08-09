@@ -39,15 +39,23 @@ export const metadata: Metadata = {
   },
 };
 
+// Colours the browser's own chrome on mobile, so it follows the theme instead of
+// leaving a green bar above a dark page.
 export const viewport: Viewport = {
-  themeColor: "#2F6B3C",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#2F6B3C" },
+    { media: "(prefers-color-scheme: dark)", color: "#141a15" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // suppressHydrationWarning: next-themes writes the theme class onto <html> from
+    // a script that runs before React, so the server's markup never matches here.
     <html
       lang="ar"
       dir="rtl"
+      suppressHydrationWarning
       className={`${changa.variable} ${plexArabic.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col" suppressHydrationWarning>

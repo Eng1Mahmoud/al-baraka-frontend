@@ -3,6 +3,7 @@ import { ArrowLeft, Banknote, Clock, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AwningValance } from "@/shared/components/illustrations/AwningValance";
 import { MarketStallIllustration } from "@/shared/components/illustrations/MarketStallIllustration";
+import { ShopHoursBadge } from "@/features/home/components/ShopHoursBadge";
 
 const PROMISES = [
   { icon: Clock, title: "من السوق كل صباح", note: "بنختار الصنف بإيدينا قبل ما نشتريه" },
@@ -17,10 +18,7 @@ export function Hero() {
 
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-6 pt-20 pb-14 md:grid-cols-[1.05fr_1fr] md:pt-24 md:pb-20">
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-100 px-3.5 py-1.5 text-xs font-bold text-brand-700">
-            <span className="size-1.5 rounded-full bg-brand-500" aria-hidden />
-            السوق فتح، والطلبات شغالة
-          </p>
+          <ShopHoursBadge />
 
           <h1 className="mb-4 font-display text-4xl leading-[1.15] font-extrabold text-brand-900 md:text-6xl">
             طازة من السوق،

@@ -17,7 +17,7 @@ export function BrandMark({ tone = "dark", className }: BrandMarkProps) {
     <span
       className={cn(
         "flex items-center justify-center rounded-xl",
-        tone === "dark" ? "bg-brand-700" : "bg-white",
+        tone === "dark" ? "bg-primary" : "bg-white",
         className
       )}
     >
@@ -29,7 +29,10 @@ export function BrandMark({ tone = "dark", className }: BrandMarkProps) {
         <path
           d={BOWL}
           fill="none"
-          stroke={tone === "dark" ? "#ffffff" : "var(--color-brand-700)"}
+          // Paired with the chip behind it: on the tinted chip the stroke is whatever
+          // reads on the primary colour, on the white chip it is the panel green —
+          // both hold in either theme, which `--color-brand-700` no longer does.
+          stroke={tone === "dark" ? "var(--primary-foreground)" : "var(--color-panel)"}
           strokeWidth={STROKE}
           strokeLinecap="round"
           strokeLinejoin="round"

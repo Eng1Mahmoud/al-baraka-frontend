@@ -19,7 +19,7 @@ export function MobileFiltersSheet() {
           <SlidersHorizontal className="size-4" aria-hidden />
           تصفية
           {activeCount > 0 && (
-            <span className="flex size-5 items-center justify-center rounded-full bg-brand-700 text-[10px] font-bold text-white">
+            <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
               {activeCount}
             </span>
           )}

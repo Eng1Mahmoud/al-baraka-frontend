@@ -2,6 +2,7 @@
 
 import { NotificationControls } from "@/features/notifications/components/NotificationControls";
 import { DashboardMobileNav } from "@/features/dashboard/components/DashboardMobileNav";
+import { ThemeToggle } from "@/shared/components/ThemeToggle";
 import { useOrders } from "@/features/orders/hooks/useOrders";
 
 export function DashboardHeader() {
@@ -25,7 +26,10 @@ export function DashboardHeader() {
         </p>
       </div>
 
-      <NotificationControls latestOrder={data?.items[0]} />
+      <div className="flex shrink-0 items-center gap-1">
+        <ThemeToggle />
+        <NotificationControls latestOrder={data?.items[0]} />
+      </div>
     </header>
   );
 }

@@ -78,7 +78,7 @@ export function ProductDetail({ slug }: { slug: string }) {
             )}
 
             {soldOut && (
-              <span className="absolute top-3 start-3 rounded-full bg-brand-900/90 px-3.5 py-1.5 text-sm font-bold text-white">
+              <span className="absolute top-3 start-3 rounded-full bg-panel/90 px-3.5 py-1.5 text-sm font-bold text-white">
                 {SOLD_OUT_LABEL}
               </span>
             )}

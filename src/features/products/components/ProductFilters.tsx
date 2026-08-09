@@ -68,7 +68,7 @@ export function ProductFilters() {
             className={cn(
               "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
               !filters.category
-                ? "border-brand-700 bg-brand-700 text-white"
+                ? "border-primary bg-primary text-primary-foreground"
                 : "hover:border-brand-500 hover:bg-brand-50"
             )}
           >
@@ -82,7 +82,7 @@ export function ProductFilters() {
               className={cn(
                 "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
                 filters.category === category.slug
-                  ? "border-brand-700 bg-brand-700 text-white"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "hover:border-brand-500 hover:bg-brand-50"
               )}
             >

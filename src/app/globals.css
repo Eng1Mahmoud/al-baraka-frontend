@@ -35,6 +35,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /*
+    An inverted surface — the footer, the "تواصل معنا" card, a badge over a photo.
+    These read as dark panels in both themes, so they can't ride the brand ramp:
+    it flips in the dark theme and would turn the footer into a white slab.
+  */
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-panel-muted: var(--panel-muted);
   --font-sans: var(--font-sans);
   /* Order numbers are set in this. No mono webfont is loaded, so it resolves to
      whatever the device has — the point is only that the digits line up. */
@@ -103,6 +111,9 @@
   --chart-4: var(--color-fruit-citrus);
   --chart-5: var(--color-fruit-plum);
   --radius: 0.75rem;
+  --panel: var(--color-brand-900);
+  --panel-foreground: var(--color-brand-100);
+  --panel-muted: var(--color-brand-300);
   --sidebar: var(--color-brand-900);
   --sidebar-foreground: var(--color-brand-100);
   --sidebar-primary: var(--color-brand-300);
@@ -114,6 +125,41 @@
 }
 
 .dark {
+  /*
+    The brand ramp inverts rather than the components changing.
+
+    `text-brand-900` compiles to `color: var(--color-brand-900)`, so redefining the
+    scale here re-colours all ~80 brand utilities at once. Written the other way —
+    `dark:` variants at each call site — the same result costs an edit in 50 files
+    and one forgotten heading is invisible ink on a dark card.
+
+    So 900 stays "the ink you write headings in" and 50 stays "the faintest wash";
+    only what those mean in this theme changes.
+  */
+  --color-brand-900: #e8f3e3;
+  --color-brand-700: #9fd090;
+  --color-brand-500: #7cb96c;
+  --color-brand-300: #8fc282;
+  --color-brand-100: #24301f;
+  --color-brand-50: #1b241a;
+
+  /* Deep enough to stay legible on their own tinted backgrounds. */
+  --color-status-pending: #f6b45f;
+  --color-status-confirmed: #6ba6dd;
+  --color-status-preparing: #a683c4;
+  --color-status-delivering: #45c4bc;
+  --color-status-delivered: #7cc06d;
+  --color-status-cancelled: #e06b5d;
+
+  --color-fruit-tomato: #f07a55;
+  --color-fruit-citrus: #f6b45f;
+  --color-fruit-lemon: #f2d06b;
+  --color-fruit-plum: #a683c4;
+
+  /* A tinted shadow is invisible on a dark ground; depth comes from a lifted card. */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 20px -10px rgb(0 0 0 / 0.6);
+  --shadow-card-hover: 0 2px 6px rgb(0 0 0 / 0.5), 0 20px 36px -14px rgb(0 0 0 / 0.75);
+
   --background: #141a15;
   --foreground: #eef3ec;
   --card: #1b231c;
@@ -121,14 +167,16 @@
   --popover: #1b231c;
   --popover-foreground: #eef3ec;
   --primary: var(--color-brand-300);
-  --primary-foreground: var(--color-brand-900);
+  /* Literal, not `--color-brand-900`: that is the light end of the ramp here, and
+     the primary button needs dark ink on its light green. */
+  --primary-foreground: #10210f;
   --secondary: #253026;
   --secondary-foreground: #eef3ec;
   --muted: #253026;
   --muted-foreground: #9fb0a0;
   --accent: #253026;
   --accent-foreground: #eef3ec;
-  --destructive: #e05a4c;
+  --destructive: #e06b5d;
   --border: rgb(255 255 255 / 10%);
   --input: rgb(255 255 255 / 15%);
   --ring: var(--color-brand-500);
@@ -137,10 +185,16 @@
   --chart-3: var(--color-brand-700);
   --chart-4: var(--color-fruit-citrus);
   --chart-5: var(--color-fruit-plum);
+  /* Literal for the same reason as the sidebar below: the ramp flipped, these did not. */
+  --panel: #101610;
+  --panel-foreground: #d8e6d3;
+  --panel-muted: #8fc282;
+  /* The sidebar is dark in both themes, so its own colours are literal — the ramp
+     underneath it flipped, but the sidebar did not. */
   --sidebar: #101610;
-  --sidebar-foreground: var(--color-brand-100);
+  --sidebar-foreground: #d8e6d3;
   --sidebar-primary: var(--color-brand-300);
-  --sidebar-primary-foreground: var(--color-brand-900);
+  --sidebar-primary-foreground: #10210f;
   --sidebar-accent: rgb(255 255 255 / 8%);
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgb(255 255 255 / 10%);

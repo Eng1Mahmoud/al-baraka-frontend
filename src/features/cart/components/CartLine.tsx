@@ -21,9 +21,9 @@ export function CartLine({ item }: { item: ValidatedCartItem }) {
 
   if (item.removed) {
     return (
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">{item.issue}</p>
-        <Button variant="ghost" size="sm" onClick={() => remove(item.productId)}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="min-w-0 text-sm text-muted-foreground">{item.issue}</p>
+        <Button variant="ghost" size="sm" className="shrink-0" onClick={() => remove(item.productId)}>
           <Trash2 className="size-4" aria-hidden />
           إزالة
         </Button>
@@ -35,10 +35,10 @@ export function CartLine({ item }: { item: ValidatedCartItem }) {
   const overStock = item.stock != null && item.stock > 0 && quantity > item.stock;
 
   return (
-    <div className="flex gap-4">
-      <div className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-brand-100">
+    <div className="flex gap-3 sm:gap-4">
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-brand-100 sm:size-20">
         {item.image ? (
-          <Image src={item.image} alt="" fill sizes="80px" className="object-cover" />
+          <Image src={item.image} alt="" fill sizes="(min-width: 640px) 80px, 64px" className="object-cover" />
         ) : (
           <span className="flex h-full items-center justify-center text-brand-500">
             <Leaf className="size-6" aria-hidden />
@@ -47,12 +47,25 @@ export function CartLine({ item }: { item: ValidatedCartItem }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <Link href={`/products/${item.slug}`} className="font-semibold text-brand-900 hover:underline">
-          {item.name}
-        </Link>
-        <p className="text-xs text-muted-foreground">
-          {formatPricePerUnit(item.price ?? 0, item.unit ?? "")}
-        </p>
+        {/*
+          The line total sits beside the name rather than at the end of the row.
+          Kept as a third column it took width from the stepper, and on a 320px screen
+          the stepper needs more than what was left — the buttons spilled past the card.
+        */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <Link href={`/products/${item.slug}`} className="font-semibold text-brand-900 hover:underline">
+              {item.name}
+            </Link>
+            <p className="text-xs text-muted-foreground">
+              {formatPricePerUnit(item.price ?? 0, item.unit ?? "")}
+            </p>
+          </div>
+
+          <p className="shrink-0 font-bold text-brand-700">
+            {formatPrice((item.price ?? 0) * quantity)}
+          </p>
+        </div>
 
         {item.issue && (
           <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-destructive">
@@ -97,18 +110,17 @@ export function CartLine({ item }: { item: ValidatedCartItem }) {
           <Button
             variant="ghost"
             size="sm"
-            className="ms-2 text-destructive hover:text-destructive"
+            className="ms-1 text-destructive hover:text-destructive sm:ms-2"
             onClick={() => remove(item.productId)}
+            aria-label="إزالة من السلة"
           >
             <Trash2 className="size-4" aria-hidden />
-            إزالة
+            {/* The icon carries it on a phone; the word is what makes it unmissable
+                once there is room for it. */}
+            <span className="hidden sm:inline">إزالة</span>
           </Button>
         </div>
       </div>
-
-      <p className="shrink-0 font-bold text-brand-700">
-        {formatPrice((item.price ?? 0) * quantity)}
-      </p>
     </div>
   );
 }

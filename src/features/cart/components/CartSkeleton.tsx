@@ -13,23 +13,27 @@ export function CartSkeleton({ lines }: { lines: number }) {
     >
       <ul className="divide-y rounded-2xl border bg-card">
         {Array.from({ length: rows }).map((_, index) => (
-          <li key={index} className="flex gap-4 p-4">
-            <Skeleton className="size-20 shrink-0 rounded-xl" />
+          <li key={index} className="flex gap-3 p-4 sm:gap-4">
+            <Skeleton className="size-16 shrink-0 rounded-xl sm:size-20" />
 
             <div className="min-w-0 flex-1">
-              <Skeleton className="h-4 w-36 max-w-full" />
-              <Skeleton className="mt-2 h-3 w-24" />
+              {/* name and unit price on the start side, the line total opposite */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-4 w-36 max-w-full" />
+                  <Skeleton className="mt-2 h-3 w-24 max-w-full" />
+                </div>
+                <Skeleton className="h-4 w-14 shrink-0" />
+              </div>
 
               {/* the quantity stepper: two icon buttons, the count, then remove */}
               <div className="mt-3.5 flex items-center gap-1">
                 <Skeleton className="size-8 rounded-lg" />
                 <Skeleton className="mx-1 h-4 w-4" />
                 <Skeleton className="size-8 rounded-lg" />
-                <Skeleton className="ms-2 h-7 w-20 rounded-lg" />
+                <Skeleton className="ms-1 h-7 w-8 rounded-lg sm:ms-2 sm:w-20" />
               </div>
             </div>
-
-            <Skeleton className="h-4 w-14 shrink-0" />
           </li>
         ))}
       </ul>
