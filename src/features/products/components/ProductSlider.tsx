@@ -15,10 +15,11 @@ const ARROW_CLASS =
   "bg-background shadow-md transition-[color,background-color,box-shadow,opacity] active:not-aria-[haspopup]:translate-y-0 disabled:opacity-0";
 
 /**
- * Embla's scroll duration — a scalar of its own, not milliseconds. Its default is 25;
- * a little under that keeps the rail feeling answerable rather than gliding.
+ * Embla's scroll duration — a scalar of its own, not milliseconds. Its default of 25
+ * glides; this is quick enough that the rail answers the click rather than easing
+ * over to the next screenful.
  */
-const SCROLL_DURATION = 22;
+const SCROLL_DURATION = 14;
 
 export function ProductSlider({ products }: { products: Product[] }) {
   // Embla moves the rail from JavaScript, so a media query can't quiet it — the

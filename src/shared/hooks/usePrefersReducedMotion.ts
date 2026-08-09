@@ -4,13 +4,24 @@ import { useSyncExternalStore } from "react";
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
+/**
+ * One MediaQueryList for the whole app, made on first use.
+ *
+ * `getSnapshot` runs on every render of every component that calls this — the home
+ * page has one slider per category — and React may call it more than once per render
+ * while it checks the store is consistent. Building a fresh MediaQueryList each time
+ * was pure waste; the object is immutable and answers the same query for everyone.
+ */
+let media: MediaQueryList | null = null;
+const getMedia = () => (media ??= window.matchMedia(QUERY));
+
 const store = {
   subscribe(onChange: () => void) {
-    const media = window.matchMedia(QUERY);
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+    const list = getMedia();
+    list.addEventListener("change", onChange);
+    return () => list.removeEventListener("change", onChange);
   },
-  getSnapshot: () => window.matchMedia(QUERY).matches,
+  getSnapshot: () => getMedia().matches,
 };
 
 /**
