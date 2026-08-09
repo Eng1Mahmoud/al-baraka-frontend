@@ -8,10 +8,6 @@ import { useCartHydrated } from "@/features/cart/hooks/useCart";
 import { isSoldOut } from "@/features/products/lib/availability";
 import type { Product } from "@/features/products/types/product";
 
-/**
- * Turns into a quantity stepper once the product is in the cart, so adding a second
- * kilo doesn't need a trip to the cart page.
- */
 export function AddToCartButton({ product, className }: { product: Product; className?: string }) {
   const isHydrated = useCartHydrated();
   const item = useCartStore((state) => state.items.find((line) => line.productId === product._id));

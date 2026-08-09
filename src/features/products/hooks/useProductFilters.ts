@@ -6,10 +6,6 @@ import type { ProductFilters, ProductSort } from "@/features/products/types/prod
 
 const SORT_VALUES: ProductSort[] = ["newest", "price-asc", "price-desc", "name"];
 
-/**
- * Filters live in the URL, not in component state — so a filtered list can be
- * shared, bookmarked, and survives the back button.
- */
 export function useProductFilters() {
   const router = useRouter();
   const pathname = usePathname();

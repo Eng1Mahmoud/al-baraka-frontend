@@ -4,10 +4,6 @@ import { Button } from "@/components/ui/button";
 import { AwningValance } from "@/shared/components/illustrations/AwningValance";
 import { MarketStallIllustration } from "@/shared/components/illustrations/MarketStallIllustration";
 
-/**
- * Each promise answers the question it raises: "within an hour" is worthless
- * without knowing where, "cash" is worthless without knowing when.
- */
 const PROMISES = [
   { icon: Clock, title: "من السوق كل صباح", note: "بنختار الصنف بإيدينا قبل ما نشتريه" },
   { icon: Truck, title: "التوصيل خلال ساعة", note: "لكل المناطق اللي بنغطيها" },
@@ -69,8 +65,6 @@ export function Hero() {
         <MarketStallIllustration className="mx-auto w-full max-w-lg" />
       </div>
 
-      {/* The promises sit on white, not on the wash: they are the page's factual
-          claims and shouldn't look like part of the illustration. */}
       <div className="relative border-t border-brand-100 bg-card">
         <ul className="mx-auto grid w-full max-w-6xl gap-x-6 gap-y-5 px-6 py-6 sm:grid-cols-3">
           {PROMISES.map((promise) => (

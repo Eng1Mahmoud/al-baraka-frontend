@@ -77,8 +77,6 @@ export function ProductDetail({ slug }: { slug: string }) {
               </span>
             )}
 
-            {/* The same treatment as the card it was opened from, so arriving here
-                doesn't feel like a different answer. */}
             {soldOut && (
               <span className="absolute top-3 start-3 rounded-full bg-brand-900/90 px-3.5 py-1.5 text-sm font-bold text-white">
                 {SOLD_OUT_LABEL}

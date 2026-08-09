@@ -37,8 +37,6 @@ export function OrderPlaced({ orderNumber }: { orderNumber: string }) {
         </Button>
       </div>
 
-      {/* The best moment to ask: they have an order to follow, and following it is
-          exactly what the installed app is good for. */}
       <InstallAppCallout
         body={INSTALL_COPY.bodyAfterOrder}
         className="mt-6 border-t pt-5 text-start"

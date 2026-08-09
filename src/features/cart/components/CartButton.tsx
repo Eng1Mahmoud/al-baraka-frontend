@@ -7,10 +7,6 @@ import { useCartCount } from "@/features/cart/hooks/useCart";
 
 const cartPlurals = new Intl.PluralRules("ar-EG");
 
-/**
- * Arabic counts three ways before it settles, and a screen reader says this label
- * out loud — "3 منتج" is the kind of wrong that a number badge shouldn't be.
- */
 const describeCart = (count: number) => {
   switch (cartPlurals.select(count)) {
     case "one":

@@ -74,10 +74,6 @@ export function CartView() {
       <aside className="rounded-2xl border bg-card p-5 md:sticky md:top-24">
         <h2 className="mb-4 font-semibold text-brand-900">ملخص الطلب</h2>
 
-        {/* Delivery and the free-delivery threshold are the server's rules, so these
-            three numbers can only settle when it answers. Dimmed rather than
-            skeletoned: the old figure is still worth reading for the half-second it
-            takes, and swapping it for a grey box just makes the page jump. */}
         <dl
           aria-busy={isFetching}
           className={cn("space-y-2.5 text-sm transition-opacity", isFetching && "opacity-60")}
@@ -113,10 +109,6 @@ export function CartView() {
           </p>
         )}
 
-        {/* An order goes through whole or not at all, so a single stale line blocks
-            checkout. Rather than leave the customer to hunt for it, this says what
-            is wrong and offers to put it right in one tap — and says what that tap
-            will do before they take it. */}
         {hasIssues && (
           <div className="mt-4 rounded-lg bg-destructive/10 p-3">
             <p className="mb-1 flex items-center gap-2 text-xs font-bold text-destructive">

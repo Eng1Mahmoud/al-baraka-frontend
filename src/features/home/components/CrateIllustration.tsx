@@ -1,9 +1,5 @@
 import { WOOD } from "@/shared/components/illustrations/materials";
 
-/**
- * The market crate. Used at small sizes to give empty states something to say —
- * an empty shelf is still the shop, not an error.
- */
 export function CrateIllustration({ className }: { className?: string }) {
   return (
     <svg

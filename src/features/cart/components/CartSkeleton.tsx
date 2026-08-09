@@ -1,16 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 
-/**
- * The cart's shape before its numbers arrive.
- *
- * Every block here matches the size and position of the thing it stands in for, so
- * when the real cart lands nothing moves — the page is already the right height, the
- * summary is already beside the lines, and the sticky panel doesn't jump. A single
- * grey rectangle promises none of that and makes the cart look emptier than it is.
- *
- * Row count comes from the cart itself, so someone with four items sees four rows.
- */
 export function CartSkeleton({ lines }: { lines: number }) {
   // Past half a dozen the reflow saved stops being worth a screen of pulsing blocks.
   const rows = Math.min(Math.max(lines, 1), 6);

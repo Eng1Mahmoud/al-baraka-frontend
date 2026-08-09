@@ -10,24 +10,9 @@ import {
 import { ProductCard } from "@/features/products/components/ProductCard";
 import type { Product } from "@/features/products/types/product";
 
-/**
- * `transition-none` and the flattened active state keep the arrows still when
- * pressed — the button's stock press effect nudges them, and a control that only
- * moves the rail shouldn't move itself. Hidden rather than greyed at each end, as
- * before.
- */
 const ARROW_CLASS =
   "bg-background shadow-md transition-none active:not-aria-[haspopup]:translate-y-0 disabled:opacity-0";
 
-/**
- * Horizontal product rail, on Embla via the shadcn carousel.
- *
- * Slide widths are set as flex-basis on the item, which includes the 1rem gutter
- * `CarouselItem` adds — so `basis-44` is a 10rem card, matching the grid elsewhere.
- *
- * The vertical padding is load-bearing: Embla's viewport clips overflow, and the PLU
- * sticker deliberately hangs outside its card's top corner.
- */
 export function ProductSlider({ products }: { products: Product[] }) {
   return (
     <Carousel

@@ -62,11 +62,6 @@ export function InfiniteProductGrid() {
         ))}
       </div>
 
-      {/*
-        Scrolling to this sentinel loads the next page. The button below is not a
-        duplicate: it's the fallback for anyone whose browser doesn't fire the
-        observer, and it gives keyboard users a way to advance without scrolling.
-      */}
       <div ref={sentinelRef} className="flex justify-center py-6">
         {isFetchingNextPage ? (
           <span className="flex items-center gap-2 text-sm text-muted-foreground">

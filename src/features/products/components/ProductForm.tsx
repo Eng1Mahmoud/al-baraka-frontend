@@ -110,9 +110,6 @@ export function ProductForm({ defaultValues, onSubmit, submitLabel }: ProductFor
       <fieldset className="rounded-xl border bg-brand-50 p-4">
         <legend className="px-2 text-sm font-semibold text-brand-900">السعر والوحدة</legend>
         <div className="grid gap-4 sm:grid-cols-3">
-          {/* Not `type="number"`: it refuses Arabic-Indic digits and the "٫" key,
-              which is what an Arabic keyboard produces. `inputMode="decimal"` still
-              opens the numeric keypad on a phone, and parseDecimal reads either. */}
           <FormField
             label="السعر"
             htmlFor="price"

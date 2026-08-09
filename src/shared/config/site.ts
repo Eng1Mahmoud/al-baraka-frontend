@@ -1,9 +1,3 @@
-/**
- * Static site chrome. Anything a shop owner changes day to day (phone, delivery
- * fee, working hours) lives in the Settings document and is edited from the
- * dashboard — these are only the fallbacks used before settings load.
- */
-
 
 export const STORE_LINKS = [
   { href: "/products", label: "كل المنتجات" },

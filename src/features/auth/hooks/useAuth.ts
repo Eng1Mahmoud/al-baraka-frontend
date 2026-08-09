@@ -17,13 +17,6 @@ export function useCurrentUser() {
   });
 }
 
-/**
- * Hands the session to this app's own domain, where `proxy.ts` can see it.
- *
- * Not `apiClient` — that is pointed at the API, and `/api/session` is a route of this app.
- * Awaited before the redirect: unawaited, the gate on /dashboard runs before the cookie
- * it looks for has been written, and sends the login it just approved back to /login.
- */
 const startSession = (token: string) =>
   fetch("/api/session", {
     method: "POST",

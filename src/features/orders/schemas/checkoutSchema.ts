@@ -7,11 +7,6 @@ const baseFields = {
   notes: z.string().max(200, "الملاحظات طويلة جدًا").optional(),
 };
 
-/**
- * Delivery is priced only by the area the customer picks. Until the shop has added
- * an area there is nothing to choose, so the field is required exactly when at least
- * one active area exists — matching what the server enforces on the order.
- */
 export const createCheckoutSchema = (requiresArea: boolean) =>
   z.object({
     ...baseFields,

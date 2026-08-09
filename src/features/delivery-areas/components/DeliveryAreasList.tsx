@@ -5,14 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/shared/lib/format";
 import { useDeliveryAreas } from "@/features/delivery-areas/hooks/useDeliveryAreas";
 
-/**
- * Where the shop delivers, and what each area costs.
- *
- * Price sits on the same line as the name because the two are one answer: "do you
- * come to me" is never asked without "and for how much". Active areas only — an area
- * switched off in the dashboard is one the shop can't serve today, and listing it
- * would promise something the checkout would then refuse.
- */
 export function DeliveryAreasList() {
   const { data: areas = [], isLoading } = useDeliveryAreas(true);
 

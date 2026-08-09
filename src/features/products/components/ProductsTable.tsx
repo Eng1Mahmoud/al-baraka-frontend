@@ -19,11 +19,6 @@ import { formatPricePerUnit } from "@/shared/lib/format";
 import { useProducts, useDeleteProduct } from "@/features/products/hooks/useProducts";
 import { DeleteButton } from "@/shared/components/DeleteButton";
 
-/**
- * The product photo, at the size it takes to tell two crates of tomatoes apart in a
- * long list. Decorative — `alt=""` — because the name sits right beside it and a
- * screen reader would otherwise read every product twice.
- */
 function ProductThumb({ image, className }: { image?: string; className?: string }) {
   return (
     <span className={cn("relative block shrink-0 overflow-hidden rounded-lg bg-brand-100", className)}>

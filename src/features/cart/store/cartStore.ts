@@ -25,10 +25,6 @@ interface CartState {
   count: () => number;
 }
 
-/**
- * Guest cart, kept in localStorage. Prices here are for display only — the API
- * recalculates every total from the database when the order is placed.
- */
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -72,18 +68,6 @@ export const useCartStore = create<CartState>()(
       remove: (productId) =>
         set((state) => ({ items: state.items.filter((item) => item.productId !== productId) })),
 
-      /**
-       * Brings a cart that has been sitting in localStorage back in line with what
-       * the shop currently has: drops what is gone or switched off, and lowers any
-       * quantity to what's left on the shelf. Prices are refreshed at the same time,
-       * so nothing stored here still quotes last week's number.
-       *
-       * Deliberately not run on load. A cart that quietly loses items between visits
-       * is worse than one that says what changed — this is wired to a button the
-       * customer presses, having been told what it will do.
-       *
-       * Lines missing from the response are left untouched rather than guessed at.
-       */
       reconcile: (checked) =>
         set((state) => ({
           items: state.items.flatMap((item) => {

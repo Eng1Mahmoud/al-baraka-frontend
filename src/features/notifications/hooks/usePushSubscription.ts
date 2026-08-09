@@ -15,12 +15,6 @@ const urlBase64ToUint8Array = (base64String: string): Uint8Array<ArrayBuffer> =>
   return bytes;
 };
 
-/**
- * Subscribes an admin's device to order push notifications — the only way to be
- * alerted while the tab is closed or the screen is off.
- *
- * On iOS this works only after the PWA is installed to the home screen (iOS 16.4+).
- */
 /** Push support is a fixed fact about the browser, so it never needs to re-notify. */
 const subscribeToNothing = () => () => {};
 const isPushSupported = () => "serviceWorker" in navigator && "PushManager" in window;

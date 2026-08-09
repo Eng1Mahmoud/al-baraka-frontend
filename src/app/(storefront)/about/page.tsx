@@ -11,11 +11,6 @@ export const metadata: Metadata = {
     "البركة مجموعة محلات خضار وفاكهة، بتشتري من السوق كل يوم وبتوصّل طلبك خلال ساعة بالدفع عند الاستلام.",
 };
 
-/**
- * Numbered because this genuinely is a sequence — the order is what makes the
- * promise credible. Weighing before buying, or paying before seeing, would be a
- * different shop.
- */
 const STEPS = [
   {
     numeral: "١",
@@ -83,8 +78,6 @@ export default function AboutPage() {
         </ol>
       </section>
 
-      {/* The one place on this page that earns the PLU sticker: the guarantee is the
-          exceptional claim, and the sticker is reserved for exceptional things. */}
       <section className="relative mt-16 rounded-3xl bg-brand-100 p-8 text-center sm:p-12 md:mt-20">
         <span className="plu-sticker bg-fruit-lemon text-foreground">ضماننا</span>
 

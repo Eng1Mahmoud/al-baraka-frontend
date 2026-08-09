@@ -6,18 +6,6 @@ import { ChevronLeft, Leaf } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories } from "@/features/categories/hooks/useCategories";
 
-/**
- * Category cards with their photo.
- *
- * The name is always on the card, never only on hover — half the shop's traffic is
- * on a phone, where hover never happens, and a wall of unlabelled photos is a
- * guessing game. The scrim carrying it is tinted with the brand green rather than
- * plain black, for the same reason the card shadows are: a neutral grey over a warm
- * photo reads as dirt, a tinted one reads as depth.
- *
- * Hover deepens the scrim and nudges the chevron, so pointer users get the
- * affordance without the name having been hidden from anyone.
- */
 export function CategoryGrid() {
   const { data: categories, isLoading, isError } = useCategories();
 

@@ -50,9 +50,6 @@ export function ProductCard({ product, highlight = null }: ProductCardProps) {
             </span>
           )}
 
-          {/* Sold-out items stay on the shelf — a customer who came looking for one
-              deserves an answer, not a product that quietly vanished. The label sits
-              at the top where the eye lands first; the grey photo backs it up. */}
           {soldOut && (
             <span className="absolute top-2 start-2 rounded-full bg-brand-900/90 px-2.5 py-1 text-[11px] font-bold text-white">
               {SOLD_OUT_LABEL}

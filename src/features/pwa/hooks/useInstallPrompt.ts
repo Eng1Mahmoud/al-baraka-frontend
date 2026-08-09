@@ -2,10 +2,6 @@
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 
-/**
- * Chrome/Edge/Android fire this when the app meets the install criteria. It isn't in
- * the DOM lib types because it isn't a standard — Safari and Firefox never fire it.
- */
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -31,19 +27,8 @@ const isIosSafari = () => {
   return isApple && !/crios|fxios/i.test(ua);
 };
 
-/*
- * These are browser facts, not React state: they exist before the component does and
- * can't be read on the server. Subscribing to them keeps the server and client
- * snapshots explicit, and avoids seeding state from inside an effect — which lags a
- * frame and flashes the banner at someone already using the app.
- */
 const subscribeToNothing = () => () => {};
 
-/**
- * The captured install event. The listener lives in the root layout's inline script,
- * not here, because the event can fire before any React code runs — this store just
- * reads what that script parked on `window` and re-reads it when told.
- */
 const promptStore = {
   subscribe(onChange: () => void) {
     window.addEventListener(CAPTURE_EVENT, onChange);
@@ -68,15 +53,6 @@ const standaloneStore = {
   getSnapshot: () => isStandalone(),
 };
 
-/**
- * Dismissal is a snooze, not a decision.
- *
- * Storing a plain "hidden" flag means someone who taps X once — or who installs the
- * app and later removes it — can never be offered it again on that browser, with no
- * way back short of clearing site data. Storing when to ask again costs the same and
- * fails open. Anything unparseable, including the old "true", reads as expired, so a
- * browser already stuck on the previous format frees itself on the next load.
- */
 const DISMISS_DAYS = 14;
 
 const dismissedUntil = () => {
@@ -108,14 +84,6 @@ const dismissStore = {
   },
 };
 
-/**
- * Drives the "install this app" button.
- *
- * Two different worlds: Chromium browsers hand over an event that opens a native
- * install dialog, while iOS Safari has no such API and can only be told where the
- * menu item lives. Both are reported here so the UI can say something useful either
- * way, rather than showing a button that does nothing on an iPhone.
- */
 export function useInstallPrompt() {
   const promptEvent = useSyncExternalStore(
     promptStore.subscribe,

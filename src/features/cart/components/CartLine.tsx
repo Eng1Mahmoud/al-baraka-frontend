@@ -58,8 +58,6 @@ export function CartLine({ item }: { item: ValidatedCartItem }) {
           <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-destructive">
             {item.issue}
 
-            {/* Asking for more than the shop has is the one issue with an obvious
-                fix, so offer it rather than making them tap "−" down to it. */}
             {overStock && (
               <button
                 type="button"
@@ -108,8 +106,6 @@ export function CartLine({ item }: { item: ValidatedCartItem }) {
         </div>
       </div>
 
-      {/* Recomputed from the live count for the same reason — the server works it
-          out exactly this way, so it lands on the same number a moment later. */}
       <p className="shrink-0 font-bold text-brand-700">
         {formatPrice((item.price ?? 0) * quantity)}
       </p>

@@ -7,15 +7,6 @@ import { toast } from "sonner";
 import { formatPrice } from "@/shared/lib/format";
 import type { Order } from "@/features/orders/types/order";
 
-/**
- * Keeps the dashboard in step with new orders.
- *
- * The alert itself is the system notification raised by the service worker — one
- * mechanism and one sound whether the tab is focused, buried behind others, or
- * closed entirely. This hook covers only what a notification can't: refreshing the
- * list on screen the moment a push lands, and putting the order one click away for
- * an admin who is already looking at it.
- */
 export function useNewOrderAlert(latestOrder?: Order) {
   const router = useRouter();
   const queryClient = useQueryClient();

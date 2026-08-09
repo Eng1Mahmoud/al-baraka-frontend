@@ -4,10 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { apiClient, getErrorMessage } from "@/shared/lib/apiClient";
 
-/**
- * Uploads images through the API, which forwards them to Sirv. Returns the public
- * URLs so a form can store them on the product being edited.
- */
 export function useImageUpload() {
   const [isUploading, setIsUploading] = useState(false);
 

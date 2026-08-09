@@ -50,32 +50,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       dir="rtl"
       className={`${changa.variable} ${plexArabic.variable} h-full antialiased`}
     >
-      {/*
-        suppressHydrationWarning: browser extensions (password managers, colour
-        pickers) add attributes like `cz-shortcut-listen` to <body> before React
-        hydrates, which React would otherwise report as a mismatch on every load.
-        It only silences attribute diffs on this element, not on the app's content.
-      */}
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
-        {/*
-          Catches `beforeinstallprompt` before React hydrates.
-
-          Chrome fires it once, early — routinely while the bundle is still
-          downloading. A listener attached from an effect can miss it entirely, and
-          the event is never re-sent for that page load, so the install button would
-          simply never appear. Running during HTML parse means nothing is missed;
-          the event is parked on `window` for `useInstallPrompt` to pick up whenever
-          it mounts.
-        */}
         <Script id="install-prompt-capture" strategy="beforeInteractive">
           {`(function(){var w=window;w.__abInstall=null;function s(e){e&&e.preventDefault();w.__abInstall=e||null;w.dispatchEvent(new Event("ab:installprompt"))}w.addEventListener("beforeinstallprompt",s);w.addEventListener("appinstalled",function(){s(null)})})();`}
         </Script>
 
-        {/*
-          Registered for the whole site, not just the dashboard: a page without an
-          active service worker is not installable, so the storefront would never
-          get an install prompt.
-        */}
         <ServiceWorkerRegistrar />
         <Providers>{children}</Providers>
         <Toaster position="top-center" richColors />

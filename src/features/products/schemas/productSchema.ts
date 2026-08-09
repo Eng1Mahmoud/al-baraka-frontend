@@ -1,24 +1,10 @@
 import { z } from "zod";
 
-/**
- * EGP has piastres and nothing smaller, so two decimals is the real limit. Without
- * this a price of 1.234 would be stored in full but displayed — and read by the
- * customer — as 1.23. Compared on integer piastres to stay clear of float error.
- */
 const hasAtMostTwoDecimals = (value: number) =>
   Math.abs(value * 100 - Math.round(value * 100)) < 1e-6;
 
 const TWO_DECIMALS_MESSAGE = "السعر يقبل رقمين عشريين على الأكثر (مثال: 12.5)";
 
-/**
- * Price and unit are one idea, not two fields: a product is always "X per unit".
- * The unit list itself comes from Settings so the shop owner can add units without
- * a code change.
- *
- * Prices are decimal — produce is priced in halves and quarters of a pound as often
- * as in whole ones. The form normalises what was typed (see `parseDecimal`) before
- * these rules run.
- */
 export const productSchema = z
   .object({
     name: z.string().min(2, "اسم المنتج مطلوب"),

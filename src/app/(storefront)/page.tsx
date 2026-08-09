@@ -11,8 +11,6 @@ export default function HomePage() {
     <>
       <Hero />
 
-      {/* Sits under the hero rather than over the categories: it's an offer, not a
-          gate. Renders nothing unless the browser can actually install. */}
       <InstallAppBanner />
 
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 md:py-16">

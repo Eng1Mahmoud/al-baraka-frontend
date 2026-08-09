@@ -1,14 +1,5 @@
 import { WOOD } from "@/shared/components/illustrations/materials";
 
-/**
- * Two identical crates with an equals sign between them — one labelled بيتنا, one
- * بيتك.
- *
- * The About page's claim is that the shop buys for a customer the way it buys for
- * itself, so the drawing states exactly that and nothing else: same crate, same
- * produce, same arrangement, twice. It is the page's argument rather than a
- * decoration next to it.
- */
 export function TwoCratesIllustration({ className }: { className?: string }) {
   return (
     <svg

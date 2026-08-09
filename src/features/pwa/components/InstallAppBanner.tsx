@@ -26,8 +26,6 @@ export function InstallAppBanner() {
           </p>
           <p className="text-xs text-muted-foreground sm:text-sm">{INSTALL_COPY.body}</p>
 
-          {/* On iOS the steps sit under the copy, where there's room to read them —
-              squeezed into the button slot they wrap into an unreadable column. */}
           {needsIosSteps && <IosInstallSteps className="mt-1.5" />}
         </div>
 

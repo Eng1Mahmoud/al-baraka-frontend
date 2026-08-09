@@ -8,10 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSettings, useUpdateSettings } from "@/features/settings/hooks/useSettings";
 
-/**
- * The unit list the product form offers ("كجم", "قطعة", ...). Editable here so
- * adding a new way to sell something never needs a code change.
- */
 export function UnitsManager() {
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();

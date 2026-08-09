@@ -72,8 +72,6 @@ export function MarketStallIllustration({ className }: { className?: string }) {
         <rect x="88" y="336" width="304" height="10" rx="5" fill={WOOD.dark} fillOpacity="0.6" />
       </g>
 
-      {/* The brass balance. The beam sits level: produce in one pan, weights in the
-          other, which is the whole promise of weighing after the order is placed. */}
       <g>
         <ellipse cx="150" cy="284" rx="36" ry="9" fill={BRASS.dark} />
         <ellipse cx="150" cy="279" rx="36" ry="9" fill={BRASS.mid} />
