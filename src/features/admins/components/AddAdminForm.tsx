@@ -1,7 +1,7 @@
 "use client";
 
 import { AppForm } from "@/shared/components/forms/AppForm";
-import { TextField } from "@/shared/components/forms/fields";
+import { PasswordField, TextField } from "@/shared/components/forms/fields";
 import { useCreateAdmin } from "@/features/admins/hooks/useAdmins";
 import { adminSchema } from "@/features/admins/schemas/adminSchema";
 
@@ -23,13 +23,14 @@ export function AddAdminForm() {
         <TextField name="email" label="البريد الإلكتروني" type="email" dir="ltr" required />
       </div>
 
-      <TextField
+      {/* Visible by default: this password is being written down to hand over, not
+          typed in secret, so hiding it would only invite a typo nobody can check. */}
+      <PasswordField
         name="password"
         label="كلمة المرور"
-        type="text"
-        dir="ltr"
         autoComplete="off"
         hint="بلّغ المشرف بيها ليغيّرها بعد أول دخول"
+        defaultVisible
         required
       />
     </AppForm>

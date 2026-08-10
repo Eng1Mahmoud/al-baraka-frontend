@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentProps, ReactNode } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import {
   Controller,
   useFormContext,
@@ -8,6 +8,8 @@ import {
   type FieldValues,
   type RegisterOptions,
 } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
@@ -101,6 +103,60 @@ export function TextField({
         {...inputProps}
         {...register(name, registerOptions)}
       />
+    </Shell>
+  );
+}
+
+type PasswordFieldProps = FieldProps &
+  Omit<ComponentProps<typeof Input>, "id" | "name" | "type"> & {
+    /** Start revealed — for a password being handed to someone, not typed by its owner. */
+    defaultVisible?: boolean;
+  };
+
+/**
+ * A password box with a reveal toggle. Typing a password you cannot see is the
+ * usual reason people get locked out of their own account on a phone keyboard.
+ */
+export function PasswordField({
+  name,
+  label,
+  hint,
+  required,
+  className,
+  defaultVisible = false,
+  ...inputProps
+}: PasswordFieldProps) {
+  const { register } = useFormContext();
+  const error = useFieldError(name);
+  const [isVisible, setIsVisible] = useState(defaultVisible);
+
+  return (
+    <Shell {...{ name, label, error, hint, required, className }}>
+      {/* An LTR island: passwords read left-to-right, and this keeps the toggle on the
+          box's right edge without the surrounding RTL page flipping it under the text. */}
+      <div className="relative" dir="ltr">
+        <Input
+          id={name}
+          type={isVisible ? "text" : "password"}
+          aria-invalid={Boolean(error)}
+          // Physical, not logical: this box is pinned to LTR, so `right` is the truth
+          // here and a logical property would only obscure which edge is meant.
+          className="pr-9"
+          {...inputProps}
+          {...register(name)}
+        />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          onClick={() => setIsVisible((visible) => !visible)}
+          aria-label={isVisible ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+          className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground"
+        >
+          {isVisible ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+        </Button>
+      </div>
     </Shell>
   );
 }

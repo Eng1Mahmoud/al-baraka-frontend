@@ -12,7 +12,11 @@ export function PageLoader({ label = "بنحمّل الصفحة" }: { label?: st
     <div
       role="status"
       aria-live="polite"
-      className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6"
+      // `flex-1` so it takes whatever height is left under the chrome above it and
+      // centres in that — the mark lands in the middle of the screen rather than a
+      // third of the way down. `min-h` is the floor for any parent that isn't a
+      // flex column and so has nothing to hand out.
+      className="flex min-h-[60vh] flex-1 flex-col items-center justify-center gap-4 px-6"
     >
       <span className="relative flex size-16 items-center justify-center">
         <span

@@ -1,7 +1,7 @@
 "use client";
 
 import { AppForm } from "@/shared/components/forms/AppForm";
-import { TextField } from "@/shared/components/forms/fields";
+import { PasswordField, TextField } from "@/shared/components/forms/fields";
 import { useLogin } from "@/features/auth/hooks/useAuth";
 import { loginSchema } from "@/features/auth/schemas/loginSchema";
 
@@ -25,14 +25,7 @@ export function LoginForm() {
         required
       />
 
-      <TextField
-        name="password"
-        label="كلمة المرور"
-        type="password"
-        dir="ltr"
-        autoComplete="current-password"
-        required
-      />
+      <PasswordField name="password" label="كلمة المرور" autoComplete="current-password" required />
     </AppForm>
   );
 }

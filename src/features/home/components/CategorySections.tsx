@@ -17,9 +17,22 @@ export function CategorySections() {
         {Array.from({ length: 2 }).map((_, index) => (
           <div key={index} className="space-y-4">
             <Skeleton className="h-7 w-40" />
-            <div className="flex gap-4">
+
+            {/*
+              Scrolls like the slider it stands in for. Four cards overflow a phone,
+              and the body is `overflow-x-hidden`, so a plain flex row would just be
+              sliced off mid-card — reading as a broken layout rather than a rail.
+
+              The widths mirror ProductSlider's `basis-44/52/56` minus the `ps-4`
+              its items carry, and `gap-4` replaces that padding, so the placeholder
+              rail lands where the real cards will.
+            */}
+            <div className="no-scrollbar flex gap-4 overflow-x-auto py-3">
               {Array.from({ length: 4 }).map((__, cardIndex) => (
-                <Skeleton key={cardIndex} className="h-64 w-44 shrink-0 rounded-2xl sm:w-52" />
+                <Skeleton
+                  key={cardIndex}
+                  className="h-64 w-40 shrink-0 rounded-2xl sm:w-48 lg:w-52"
+                />
               ))}
             </div>
           </div>
