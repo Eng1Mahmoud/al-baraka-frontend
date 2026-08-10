@@ -19,6 +19,8 @@ export const queryKeys = {
   orders: (filters?: object) => ["orders", filters ?? {}] as const,
   order: (id: string) => ["orders", id] as const,
   orderStats: ["orders", "stats"] as const,
+  /** Prefix — the full key also carries the window in days. */
+  orderAnalytics: ["orders", "analytics"] as const,
   /** Prefix — the full key also carries the lines and the chosen area. */
   cartValidation: ["cart", "validate"] as const,
   admins: ["admins"] as const,

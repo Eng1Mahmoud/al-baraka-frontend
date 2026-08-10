@@ -25,6 +25,20 @@ export const ORDER_STATUS_LABELS = {
   cancelled: "ملغي",
 } as const;
 
+/**
+ * The raw token per status, for marks that take a colour rather than a class —
+ * SVG fills and inline bar backgrounds. Same values the badges wear, so a status
+ * looks the same in a chart as it does in the table.
+ */
+export const ORDER_STATUS_COLORS = {
+  pending: "var(--color-status-pending)",
+  confirmed: "var(--color-status-confirmed)",
+  preparing: "var(--color-status-preparing)",
+  out_for_delivery: "var(--color-status-delivering)",
+  delivered: "var(--color-status-delivered)",
+  cancelled: "var(--color-status-cancelled)",
+} as const;
+
 /** Tailwind classes per status — mirrors the --color-status-* tokens. */
 export const ORDER_STATUS_STYLES = {
   pending: "bg-status-pending/15 text-status-pending border-status-pending/30",

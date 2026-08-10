@@ -20,11 +20,15 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, formatPrice } from "@/shared/lib/format";
 import { ORDER_STATUS_LABELS } from "@/shared/config/site";
+import { InfiniteScrollArea } from "@/shared/components/InfiniteScrollArea";
+import { SearchInput } from "@/shared/components/SearchInput";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
-import { useOrders, useUpdateOrderStatus } from "@/features/orders/hooks/useOrders";
+import { useInfiniteOrders, useUpdateOrderStatus } from "@/features/orders/hooks/useOrders";
 import type { Order, OrderStatus } from "@/features/orders/types/order";
 
 const STATUS_FILTERS = ["all", ...Object.keys(ORDER_STATUS_LABELS)] as const;
+
+const PAGE_SIZE = 20;
 
 function StatusPicker({
   order,
@@ -53,37 +57,76 @@ function StatusPicker({
 
 export function OrdersTable() {
   const [status, setStatus] = useState<"all" | OrderStatus>("all");
-  const { data, isLoading } = useOrders(status === "all" ? {} : { status });
+  const [search, setSearch] = useState("");
+
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteOrders(
+    { status: status === "all" ? undefined : status, search: search || undefined },
+    PAGE_SIZE
+  );
+
   const updateStatus = useUpdateOrderStatus();
 
   const changeStatus = (id: string, next: OrderStatus) => updateStatus.mutate({ id, status: next });
 
+  // Deduplicated because paging is by offset and this list polls: an order placed
+  // between the fetch of page 1 and page 2 pushes a row across the boundary, and it
+  // would otherwise be rendered twice — with the same React key.
+  const orders = [
+    ...new Map(
+      (data?.pages ?? []).flatMap((page) => page.items).map((order) => [order._id, order])
+    ).values(),
+  ];
+
   return (
     <div className="space-y-4">
-      <Select value={status} onValueChange={(value) => setStatus(value as typeof status)}>
-        <SelectTrigger className="w-full sm:w-48" aria-label="تصفية بالحالة">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {STATUS_FILTERS.map((value) => (
-            <SelectItem key={value} value={value}>
-              {value === "all" ? "كل الطلبات" : ORDER_STATUS_LABELS[value as OrderStatus]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          label="ابحث في الطلبات"
+          placeholder="رقم الطلب، اسم العميل، أو رقم الهاتف..."
+          className="sm:flex-1"
+        />
+
+        <Select value={status} onValueChange={(value) => setStatus(value as typeof status)}>
+          <SelectTrigger className="w-full sm:w-48" aria-label="تصفية بالحالة">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_FILTERS.map((value) => (
+              <SelectItem key={value} value={value}>
+                {value === "all" ? "كل الطلبات" : ORDER_STATUS_LABELS[value as OrderStatus]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {isLoading ? (
         <Skeleton className="h-64 w-full rounded-xl" />
-      ) : !data?.items.length ? (
+      ) : !orders.length ? (
         <p className="rounded-xl border border-dashed bg-card py-10 text-center text-sm text-muted-foreground">
-          لا توجد طلبات في هذه الحالة.
+          {search ? `مفيش طلب مطابق لـ "${search}".` : "لا توجد طلبات في هذه الحالة."}
         </p>
       ) : (
-        <>
+        <InfiniteScrollArea
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          isFetchNextPageError={isFetchNextPageError}
+          fetchNextPage={fetchNextPage}
+          endLabel="وصلت لآخر الطلبات"
+          className="md:rounded-xl md:border md:bg-card"
+        >
           {/* Cards on phones — seven columns of table is unreadable at 375px. */}
           <ul className="space-y-3 md:hidden">
-            {data.items.map((order) => (
+            {orders.map((order) => (
               <li key={order._id} className="rounded-xl border bg-card p-4">
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <Link href={`/dashboard/orders/${order._id}`} className="min-w-0 hover:underline">
@@ -117,9 +160,11 @@ export function OrdersTable() {
             ))}
           </ul>
 
-          <div className="hidden overflow-x-auto rounded-xl border bg-card md:block">
+          <div className="hidden md:block">
             <Table>
-              <TableHeader>
+              {/* Stays put as rows scroll under it — the column names are the only
+                  thing telling a bare row of numbers what it means. */}
+              <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
                   <TableHead>رقم الطلب</TableHead>
                   <TableHead>العميل</TableHead>
@@ -131,7 +176,7 @@ export function OrdersTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.items.map((order) => (
+                {orders.map((order) => (
                   <TableRow key={order._id}>
                     <TableCell className="font-mono text-xs">
                       <Link href={`/dashboard/orders/${order._id}`} className="hover:underline">
@@ -161,7 +206,7 @@ export function OrdersTable() {
               </TableBody>
             </Table>
           </div>
-        </>
+        </InfiniteScrollArea>
       )}
     </div>
   );

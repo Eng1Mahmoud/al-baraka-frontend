@@ -1,6 +1,7 @@
 import { apiClient } from "@/shared/lib/apiClient";
 import type {
   Order,
+  OrderAnalytics,
   OrderListResponse,
   OrderStats,
   OrderStatus,
@@ -11,6 +12,8 @@ import type { CheckoutFormValues } from "@/features/orders/schemas/checkoutSchem
 
 export interface OrderFilters {
   status?: OrderStatus;
+  /** Matched against the order number, the customer's name, and their phone. */
+  search?: string;
   page?: number;
   limit?: number;
 }
@@ -42,6 +45,11 @@ export const ordersApi = {
 
   stats: async (): Promise<OrderStats> => {
     const { data } = await apiClient.get<OrderStats>("/orders/stats");
+    return data;
+  },
+
+  analytics: async (days: number): Promise<OrderAnalytics> => {
+    const { data } = await apiClient.get<OrderAnalytics>("/orders/analytics", { params: { days } });
     return data;
   },
 

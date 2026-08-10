@@ -15,11 +15,15 @@ export function useProducts(filters: ProductFilters = {}) {
   });
 }
 
-/** Paged list for the all-products page — one page appended per scroll. */
-export function useInfiniteProducts(filters: ProductFilters = {}) {
+/**
+ * Paged list — one page appended per scroll. Shared by the storefront grid and the
+ * dashboard table, which want different page sizes: a card grid fills a screen with
+ * fewer rows than a table does.
+ */
+export function useInfiniteProducts(filters: ProductFilters = {}, limit = 12) {
   return useInfiniteQuery({
-    queryKey: queryKeys.products({ ...filters, infinite: true }),
-    queryFn: ({ pageParam }) => productsApi.list({ ...filters, page: pageParam, limit: 12 }),
+    queryKey: queryKeys.products({ ...filters, limit, infinite: true }),
+    queryFn: ({ pageParam }) => productsApi.list({ ...filters, page: pageParam, limit }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.page + 1 : undefined),
   });

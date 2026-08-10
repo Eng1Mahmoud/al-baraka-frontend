@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, X } from "lucide-react";
+import { useCallback } from "react";
+import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { SearchInput } from "@/shared/components/SearchInput";
 import { useCategories } from "@/features/categories/hooks/useCategories";
 import { usePriceBounds } from "@/features/products/hooks/useProducts";
 import { useProductFilters } from "@/features/products/hooks/useProductFilters";
@@ -17,16 +18,12 @@ export function ProductFilters() {
   const { data: categories = [] } = useCategories();
   const { data: bounds } = usePriceBounds();
 
-  // Typing shouldn't refetch on every keystroke.
-  const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if ((filters.search ?? "") !== searchDraft) setFilter("search", searchDraft || undefined);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [searchDraft, filters.search, setFilter]);
+  // Undefined rather than "", so an emptied box drops the param instead of writing
+  // `?search=` into the URL.
+  const setSearch = useCallback(
+    (term: string) => setFilter("search", term || undefined),
+    [setFilter]
+  );
 
   return (
     <div className="space-y-6 rounded-2xl border bg-card p-5">
@@ -42,19 +39,13 @@ export function ProductFilters() {
 
       <div className="space-y-2">
         <Label htmlFor="search">ابحث</Label>
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden
-          />
-          <Input
-            id="search"
-            value={searchDraft}
-            onChange={(event) => setSearchDraft(event.target.value)}
-            placeholder="طماطم، موز..."
-            className="ps-9"
-          />
-        </div>
+        <SearchInput
+          id="search"
+          label="ابحث"
+          value={filters.search ?? ""}
+          onChange={setSearch}
+          placeholder="طماطم، موز..."
+        />
       </div>
 
       <Separator />

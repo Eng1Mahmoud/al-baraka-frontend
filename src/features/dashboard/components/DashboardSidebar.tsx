@@ -17,13 +17,30 @@ export function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
 
   const items = DASHBOARD_NAV.filter((item) => !item.roles || (user && item.roles.includes(user.role)));
 
+  /*
+    The most specific match wins, rather than every prefix match lighting up.
+
+    `/dashboard` is a prefix of every other entry, so on `/dashboard/orders/abc` the
+    plain prefix test made "نظرة عامة" and "الطلبات" both look current — and the
+    overview item was highlighted on every screen in the dashboard. Taking the longest
+    matching href settles that without an `exact` flag on each entry.
+  */
+  const activeHref = items.reduce(
+    (best, item) =>
+      (pathname === item.href || pathname.startsWith(`${item.href}/`)) &&
+      item.href.length > best.length
+        ? item.href
+        : best,
+    ""
+  );
+
   return (
     <div className="flex h-full flex-col gap-6">
       <Logo tone="light" className="px-2 pt-2" />
 
       <nav className="flex flex-1 flex-col gap-1">
         {items.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = item.href === activeHref;
 
           return (
             <Link
@@ -67,7 +84,9 @@ export function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
 
 export function DashboardSidebar() {
   return (
-    <aside className="hidden w-60 shrink-0 bg-sidebar p-4 text-sidebar-foreground md:block">
+    // Its own scroller: the shell is pinned to the viewport now, so a nav that ever
+    // outgrows a short screen scrolls here rather than being clipped.
+    <aside className="hidden w-60 shrink-0 overflow-y-auto bg-sidebar p-4 text-sidebar-foreground md:block">
       <DashboardNav />
     </aside>
   );

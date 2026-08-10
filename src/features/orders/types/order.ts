@@ -51,6 +51,7 @@ export interface OrderListResponse {
   total: number;
   page: number;
   pages: number;
+  hasMore: boolean;
   pendingCount: number;
 }
 
@@ -59,4 +60,19 @@ export interface OrderStats {
   pendingOrders: number;
   deliveredOrders: number;
   totalRevenue: number;
+}
+
+/** One day in the trend series. Every day in the window is present, quiet ones as zeros. */
+export interface DailyPoint {
+  /** `YYYY-MM-DD`, in the shop's own timezone. */
+  date: string;
+  orders: number;
+  revenue: number;
+}
+
+export interface OrderAnalytics {
+  daily: DailyPoint[];
+  /** Every status the shop has orders in — cancelled included, unlike the totals above. */
+  byStatus: { status: OrderStatus; count: number }[];
+  topProducts: { name: string; quantity: number; revenue: number }[];
 }
