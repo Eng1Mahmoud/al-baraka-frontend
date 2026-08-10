@@ -241,20 +241,31 @@ export function SelectField({
 export function SwitchField({
   name,
   label,
+  hint,
   className,
-}: Pick<FieldProps, "name" | "label" | "className">) {
+  disabled,
+}: Pick<FieldProps, "name" | "label" | "hint" | "className"> & { disabled?: boolean }) {
   const { control } = useFormContext();
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => (
-          <Switch id={name} checked={Boolean(field.value)} onCheckedChange={field.onChange} />
-        )}
-      />
-      <Label htmlFor={name}>{label}</Label>
+    <div className={className}>
+      <div className="flex items-center gap-3">
+        <Controller
+          control={control}
+          name={name}
+          render={({ field }) => (
+            <Switch
+              id={name}
+              checked={Boolean(field.value)}
+              disabled={disabled}
+              onCheckedChange={field.onChange}
+            />
+          )}
+        />
+        <Label htmlFor={name}>{label}</Label>
+      </div>
+
+      {hint && <p className="mt-2 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }

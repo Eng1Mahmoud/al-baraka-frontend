@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { parseDecimal } from "@/shared/lib/format";
@@ -20,6 +22,35 @@ import {
   type ProductFormInput,
   type ProductFormValues,
 } from "@/features/products/schemas/productSchema";
+
+/**
+ * Availability follows stock, matching what the API enforces on save: a product with
+ * nothing on the shelf cannot be on sale, so the switch goes off and locks.
+ *
+ * Restocking unlocks it but does not switch it back on — the server behaves the same
+ * way, because it cannot tell a sold-out product from one hidden on purpose.
+ */
+function AvailabilitySwitch() {
+  const { control, setValue } = useFormContext();
+  const stock = useWatch({ control, name: "stock" });
+
+  // An empty box is someone mid-edit, not a zero — only a written 0 counts, or the
+  // switch would flip off in the moment between clearing the field and retyping it.
+  const isOutOfStock = stock !== "" && stock != null && Number(stock) === 0;
+
+  useEffect(() => {
+    if (isOutOfStock) setValue("isAvailable", false);
+  }, [isOutOfStock, setValue]);
+
+  return (
+    <SwitchField
+      name="isAvailable"
+      label="متاح للبيع الآن"
+      disabled={isOutOfStock}
+      hint={isOutOfStock ? "الكمية صفر، فالمنتج مش هيظهر للعملاء. زوّد الكمية الأول." : undefined}
+    />
+  );
+}
 
 interface ProductFormProps {
   defaultValues?: Partial<ProductFormInput>;
@@ -133,7 +164,7 @@ export function ProductForm({ defaultValues, onSubmit, submitLabel }: ProductFor
         )}
       />
 
-      <SwitchField name="isAvailable" label="متاح للبيع الآن" />
+      <AvailabilitySwitch />
     </AppForm>
   );
 }
