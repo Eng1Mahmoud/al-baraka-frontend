@@ -16,8 +16,8 @@ export function useIntersection(
       (entries) => {
         if (entries[0]?.isIntersecting) onIntersect();
       },
-      // Start loading slightly before the sentinel is visible, so the grid never
-      // visibly runs out of products mid-scroll.
+      // Fires while the element is still a screenful away, so the fetch is already
+      // in flight by the time the user reaches it.
       { rootMargin: "300px" }
     );
 

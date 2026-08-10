@@ -6,22 +6,11 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/** Never changes after the first client render, so there is nothing to subscribe to. */
 const subscribeToNothing = () => () => {};
 
-/**
- * Switches between the light and dark palettes.
- *
- * Toggles against `resolvedTheme`, not `theme`: on a device set to dark, `theme` is
- * the string "system" and flipping it away from that would land on dark again, so
- * the first tap would appear to do nothing.
- */
 export function ThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
 
-  // Which theme is active is a fact about the browser and unknowable while rendering
-  // on the server, so the icon is held back for one render. Drawn anyway it would
-  // show the sun on a dark device until hydration corrected it.
   const isMounted = useSyncExternalStore(
     subscribeToNothing,
     () => true,

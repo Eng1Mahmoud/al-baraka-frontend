@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+
+/** Registers the worker in production, and tears down stale ones in development. */
 export function ServiceWorkerRegistrar() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;

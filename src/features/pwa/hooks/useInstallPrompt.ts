@@ -55,11 +55,10 @@ const standaloneStore = {
 
 const DISMISS_DAYS = 14;
 
-const dismissedUntil = () => {
-  const stored = Number(localStorage.getItem(DISMISSED_KEY));
-  return Number.isFinite(stored) ? stored : 0;
-};
-
+/**
+ * The snooze has no browser event behind it, so this store keeps its own listeners —
+ * one dismissal has to reach the banner, the footer callout and the button at once.
+ */
 const dismissStore = {
   listeners: new Set<() => void>(),
 
@@ -68,20 +67,19 @@ const dismissStore = {
     return () => dismissStore.listeners.delete(onChange);
   },
 
-  getSnapshot: () => Date.now() < dismissedUntil(),
+  // A missing key reads as 0, and so does a corrupted one — both mean "not snoozed".
+  getSnapshot: () => Date.now() < (Number(localStorage.getItem(DISMISSED_KEY)) || 0),
 
-  notify: () => dismissStore.listeners.forEach((listener) => listener()),
-
-  dismiss() {
-    localStorage.setItem(DISMISSED_KEY, String(Date.now() + DISMISS_DAYS * 86_400_000));
-    dismissStore.notify();
+  write(until: string | null) {
+    if (until === null) localStorage.removeItem(DISMISSED_KEY);
+    else localStorage.setItem(DISMISSED_KEY, until);
+    dismissStore.listeners.forEach((listener) => listener());
   },
+
+  dismiss: () => dismissStore.write(String(Date.now() + DISMISS_DAYS * 86_400_000)),
 
   /** Installing wipes the snooze, so removing the app later gets a clean offer. */
-  reset() {
-    localStorage.removeItem(DISMISSED_KEY);
-    dismissStore.notify();
-  },
+  reset: () => dismissStore.write(null),
 };
 
 export function useInstallPrompt() {
@@ -120,12 +118,11 @@ export function useInstallPrompt() {
     if (!promptEvent) return;
 
     await promptEvent.prompt();
-    const { outcome } = await promptEvent.userChoice;
+    await promptEvent.userChoice;
 
     // Single-use: it can't be prompted with twice. Chrome fires a fresh one on a
     // later visit if they declined, so drop this one either way.
     promptStore.clear();
-    return outcome;
   }, [promptEvent]);
 
   return {
@@ -133,7 +130,6 @@ export function useInstallPrompt() {
     canInstall: Boolean(promptEvent) && !isInstalled,
     /** iOS Safari: no API, so the customer has to be shown the menu path. */
     needsIosSteps: isApple && !isInstalled,
-    isInstalled,
     isDismissed,
     install,
     dismiss: dismissStore.dismiss,

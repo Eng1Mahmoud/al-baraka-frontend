@@ -6,7 +6,7 @@ import { useNewOrderAlert } from "@/features/notifications/hooks/useNewOrderAler
 import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
 import type { Order } from "@/features/orders/types/order";
 
-
+/** The dashboard header's compact toggle, paired with the new-order toast. */
 export function NotificationControls({ latestOrder }: { latestOrder?: Order }) {
   useNewOrderAlert(latestOrder);
   const { isSupported, isSubscribed, isWorking, subscribe, unsubscribe } = usePushSubscription();

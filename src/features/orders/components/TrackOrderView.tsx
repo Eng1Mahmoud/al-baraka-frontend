@@ -3,13 +3,10 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { FormField } from "@/shared/components/forms/FormField";
-import { SubmitButton } from "@/shared/components/forms/SubmitButton";
+import { AppForm } from "@/shared/components/forms/AppForm";
+import { TextField } from "@/shared/components/forms/fields";
 import { formatDate, formatPrice } from "@/shared/lib/format";
 import { getErrorMessage } from "@/shared/lib/apiClient";
 import { ordersApi } from "@/features/orders/api/orders.api";
@@ -19,8 +16,6 @@ const trackSchema = z.object({
   orderNumber: z.string().trim().min(4, "رقم الطلب مطلوب"),
 });
 
-type TrackFormValues = z.infer<typeof trackSchema>;
-
 export function TrackOrderView() {
   const searchParams = useSearchParams();
 
@@ -29,15 +24,6 @@ export function TrackOrderView() {
   // so asking them to press a button first would be asking for nothing.
   const linkedOrder = searchParams.get("order")?.trim() ?? "";
   const [lookup, setLookup] = useState(linkedOrder);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TrackFormValues>({
-    resolver: zodResolver(trackSchema),
-    defaultValues: { orderNumber: linkedOrder },
-  });
 
   const {
     data: order,
@@ -52,36 +38,35 @@ export function TrackOrderView() {
 
   return (
     <div className="space-y-6">
-      <form
-        onSubmit={handleSubmit((values) => setLookup(values.orderNumber))}
+      <AppForm
+        schema={trackSchema}
+        defaultValues={{ orderNumber: linkedOrder }}
+        onSubmit={(values) => setLookup(values.orderNumber)}
+        // The button follows a query, not a mutation — this form only sets the key
+        // that enables the lookup below.
+        isPending={isFetching}
+        submitLabel="اعرض الطلب"
+        submitClassName="w-full"
         className="space-y-4 rounded-2xl border bg-card p-5"
       >
-        <FormField
+        <TextField
+          name="orderNumber"
           label="رقم الطلب"
-          htmlFor="orderNumber"
-          error={errors.orderNumber?.message}
+          dir="ltr"
+          autoComplete="off"
+          placeholder="AB-260807-0001"
           hint="هتلاقيه في رسالة تأكيد الطلب"
           required
-        >
-          <Input
-            id="orderNumber"
-            dir="ltr"
-            autoComplete="off"
-            placeholder="AB-260807-0001"
-            {...register("orderNumber")}
-          />
-        </FormField>
+        />
 
-        <SubmitButton isSubmitting={isFetching} className="w-full">
-          اعرض الطلب
-        </SubmitButton>
-
+        {/* A lookup failure, as opposed to a field error — it belongs to the form,
+            not to the input, so it sits outside FormField. */}
         {error && (
           <p role="alert" className="text-sm text-destructive">
             {getErrorMessage(error)}
           </p>
         )}
-      </form>
+      </AppForm>
 
       {order && (
         <div className="rounded-2xl border bg-card p-5">

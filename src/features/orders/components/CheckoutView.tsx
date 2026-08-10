@@ -2,30 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ShoppingBasket, TriangleAlert } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatPrice } from "@/shared/lib/format";
-import { FormField } from "@/shared/components/forms/FormField";
-import { SubmitButton } from "@/shared/components/forms/SubmitButton";
+import { AppForm } from "@/shared/components/forms/AppForm";
+import { SelectField, TextField, TextareaField } from "@/shared/components/forms/fields";
 import { useCartStore } from "@/features/cart/store/cartStore";
 import { useCartHydrated, useValidatedCart } from "@/features/cart/hooks/useCart";
 import { useDeliveryAreas } from "@/features/delivery-areas/hooks/useDeliveryAreas";
 import { useCreateOrder } from "@/features/orders/hooks/useCreateOrder";
 import { OrderPlaced } from "@/features/orders/components/OrderPlaced";
 import { CheckoutSkeleton } from "@/features/orders/components/CheckoutSkeleton";
-import { createCheckoutSchema, type CheckoutFormValues } from "@/features/orders/schemas/checkoutSchema";
+import { createCheckoutSchema } from "@/features/orders/schemas/checkoutSchema";
 
 export function CheckoutView() {
   const isHydrated = useCartHydrated();
@@ -39,16 +28,6 @@ export function CheckoutView() {
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(null);
 
   const requiresArea = areas.length > 0;
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm<CheckoutFormValues>({
-    resolver: zodResolver(createCheckoutSchema(requiresArea)),
-    defaultValues: { deliveryAreaId: "" },
-  });
 
   if (placedOrderNumber) {
     return <OrderPlaced orderNumber={placedOrderNumber} />;
@@ -96,95 +75,75 @@ export function CheckoutView() {
     );
   }
 
-  const onSubmit = async (values: CheckoutFormValues) => {
-    const order = await createOrder.mutateAsync(values);
-    setPlacedOrderNumber(order.orderNumber);
-  };
-
   return (
     <>
       <h1 className="mb-6 font-display text-2xl font-bold text-brand-900 md:text-3xl">إتمام الطلب</h1>
 
       <div className="grid gap-8 md:grid-cols-[1fr_300px] md:items-start">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-2xl border bg-card p-5">
+        <AppForm
+          // Built from runtime data: the area field is only required once the store
+          // actually has delivery areas configured.
+          schema={createCheckoutSchema(requiresArea)}
+          defaultValues={{ deliveryAreaId: "" }}
+          isPending={createOrder.isPending}
+          submitLabel="تأكيد الطلب"
+          submitClassName="w-full"
+          className="space-y-5 rounded-2xl border bg-card p-5"
+          onSubmit={async (values) => {
+            const order = await createOrder.mutateAsync(values);
+            setPlacedOrderNumber(order.orderNumber);
+          }}
+        >
           <p className="text-sm text-muted-foreground">
             مش محتاج حساب — سيب بياناتك وهنتواصل معاك لتأكيد الطلب.
           </p>
 
-          <FormField label="الاسم" htmlFor="name" error={errors.name?.message} required>
-            <Input id="name" autoComplete="name" placeholder="محمد أحمد" {...register("name")} />
-          </FormField>
+          <TextField name="name" label="الاسم" autoComplete="name" placeholder="محمد أحمد" required />
 
-          <FormField
+          <TextField
+            name="phone"
             label="رقم الهاتف"
-            htmlFor="phone"
-            error={errors.phone?.message}
+            dir="ltr"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="01012345678"
             hint="هنتصل بيك عليه لتأكيد الطلب"
             required
-          >
-            <Input
-              id="phone"
-              dir="ltr"
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="01012345678"
-              {...register("phone")}
-            />
-          </FormField>
+          />
 
           {requiresArea && (
-            <FormField
+            <SelectField
+              name="deliveryAreaId"
               label="منطقة التوصيل"
-              htmlFor="deliveryAreaId"
-              error={errors.deliveryAreaId?.message}
+              placeholder="اختر المنطقة"
               hint="سعر التوصيل بيتحدد حسب المنطقة"
               required
-            >
-              <Controller
-                control={control}
-                name="deliveryAreaId"
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setAreaId(value);
-                    }}
-                  >
-                    <SelectTrigger id="deliveryAreaId" className="w-full">
-                      <SelectValue placeholder="اختر المنطقة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {areas.map((area) => (
-                        <SelectItem key={area._id} value={area._id}>
-                          {area.name} — {area.price > 0 ? formatPrice(area.price) : "توصيل مجاني"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FormField>
+              // Mirrored into local state as well as the form: the cart query is keyed
+              // by area, so picking one re-prices the delivery line in the summary.
+              onValueChange={setAreaId}
+              options={areas.map((area) => ({
+                value: area._id,
+                label: `${area.name} — ${area.price > 0 ? formatPrice(area.price) : "توصيل مجاني"}`,
+              }))}
+            />
           )}
 
-          <FormField label="العنوان بالتفصيل" htmlFor="address" error={errors.address?.message} required>
-            <Textarea
-              id="address"
-              rows={3}
-              autoComplete="street-address"
-              placeholder="الشارع، رقم العقار، الدور، الشقة، وأقرب علامة مميزة"
-              {...register("address")}
-            />
-          </FormField>
+          <TextareaField
+            name="address"
+            label="العنوان بالتفصيل"
+            rows={3}
+            autoComplete="street-address"
+            placeholder="الشارع، رقم العقار، الدور، الشقة، وأقرب علامة مميزة"
+            required
+          />
 
-          <FormField label="ملاحظات للطلب" htmlFor="notes" error={errors.notes?.message}>
-            <Textarea id="notes" rows={2} placeholder="مثال: الطماطم تكون ناضجة" {...register("notes")} />
-          </FormField>
-
-          <SubmitButton isSubmitting={isSubmitting || createOrder.isPending} className="w-full">
-            تأكيد الطلب
-          </SubmitButton>
-        </form>
+          <TextareaField
+            name="notes"
+            label="ملاحظات للطلب"
+            rows={2}
+            placeholder="مثال: الطماطم تكون ناضجة"
+          />
+        </AppForm>
 
         <aside className="rounded-2xl border bg-card p-5 md:sticky md:top-24">
           <h2 className="mb-4 font-semibold text-brand-900">ملخص الطلب</h2>

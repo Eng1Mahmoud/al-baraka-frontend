@@ -34,9 +34,20 @@ export function usePushSubscription() {
       .catch(() => setIsSubscribed(false));
   }, [isSupported]);
 
-  const subscribe = async () => {
+  /** Both directions are the same shape: hold the buttons, surface any failure as a toast. */
+  const run = async (task: () => Promise<void>) => {
     setIsWorking(true);
     try {
+      await task();
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsWorking(false);
+    }
+  };
+
+  const subscribe = () =>
+    run(async () => {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
         toast.error("لم يتم السماح بالإشعارات من إعدادات المتصفح");
@@ -58,30 +69,25 @@ export function usePushSubscription() {
       await apiClient.post("/push/subscribe", subscription.toJSON());
       setIsSubscribed(true);
       toast.success("تم تفعيل إشعارات الطلبات على هذا الجهاز");
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsWorking(false);
-    }
-  };
+    });
 
-  const unsubscribe = async () => {
-    setIsWorking(true);
-    try {
+  const unsubscribe = () =>
+    run(async () => {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      if (!subscription) return;
+
+      // Revoked from browser settings, or cleared on another tab — the button is
+      // lying about the state either way, so correct it rather than bailing silently.
+      if (!subscription) {
+        setIsSubscribed(false);
+        return;
+      }
 
       await apiClient.post("/push/unsubscribe", { endpoint: subscription.endpoint });
       await subscription.unsubscribe();
       setIsSubscribed(false);
       toast.success("تم إيقاف الإشعارات على هذا الجهاز");
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsWorking(false);
-    }
-  };
+    });
 
   return { isSupported, isSubscribed, isWorking, subscribe, unsubscribe };
 }

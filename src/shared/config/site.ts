@@ -12,11 +12,7 @@ export const HEADER_LINKS = [
   { href: "/about", label: "عن البركة" },
   { href: "/#categories", label: "الأقسام" },
   { href: "/products", label: "كل المنتجات" },
-  // "Do you deliver to me?" decides whether the rest of the shop is worth browsing,
-  // so it sits in the nav rather than only at the bottom of the page.
   { href: "/delivery-areas", label: "مناطق التوصيل" },
-  // Someone waiting on an order opens the site for this and nothing else. Buried in
-  // the footer it costs them a scroll on the one visit that isn't about shopping.
   { href: "/track", label: "تتبع طلبك" },
 ] as const;
 

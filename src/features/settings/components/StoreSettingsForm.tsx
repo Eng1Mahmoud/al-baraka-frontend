@@ -1,65 +1,50 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FormField } from "@/shared/components/forms/FormField";
-import { SubmitButton } from "@/shared/components/forms/SubmitButton";
+import { AppForm } from "@/shared/components/forms/AppForm";
+import { TextField } from "@/shared/components/forms/fields";
 import { useSettings, useUpdateSettings } from "@/features/settings/hooks/useSettings";
-import {
-  settingsSchema,
-  type SettingsFormInput,
-  type SettingsFormValues,
-} from "@/features/settings/schemas/settingsSchema";
+import { settingsSchema } from "@/features/settings/schemas/settingsSchema";
 
 export function StoreSettingsForm() {
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SettingsFormInput, unknown, SettingsFormValues>({
-    resolver: zodResolver(settingsSchema),
-    values: settings && {
-      storeName: settings.storeName,
-      storePhone: settings.storePhone,
-      workingHours: settings.workingHours,
-    },
-  });
-
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
 
   return (
-    <form
-      onSubmit={handleSubmit((values) => updateSettings.mutateAsync(values))}
+    <AppForm
+      schema={settingsSchema}
+      onSubmit={(values) => updateSettings.mutateAsync(values)}
+      isPending={updateSettings.isPending}
+      submitLabel="حفظ الإعدادات"
       className="space-y-5"
+      // `values`, not `defaultValues`: these come from the server, and this keeps the
+      // fields in step with a refetch instead of freezing whatever arrived first.
+      values={
+        settings && {
+          storeName: settings.storeName,
+          storePhone: settings.storePhone,
+          workingHours: settings.workingHours,
+        }
+      }
     >
-      <FormField label="اسم المتجر" htmlFor="storeName" error={errors.storeName?.message} required>
-        <Input id="storeName" {...register("storeName")} />
-      </FormField>
+      <TextField name="storeName" label="اسم المتجر" required />
 
-      <FormField
+      <TextField
+        name="storePhone"
         label="رقم الهاتف"
-        htmlFor="storePhone"
-        error={errors.storePhone?.message}
+        dir="ltr"
+        inputMode="tel"
+        placeholder="01012345678"
         hint="بيظهر للعملاء في الفوتر وصفحة من نحن"
-      >
-        <Input id="storePhone" dir="ltr" inputMode="tel" placeholder="01012345678" {...register("storePhone")} />
-      </FormField>
+      />
 
-      <FormField
+      <TextField
+        name="workingHours"
         label="مواعيد العمل"
-        htmlFor="workingHours"
-        error={errors.workingHours?.message}
         hint="مثال: يوميًا من 9 ص إلى 11 م"
-      >
-        <Input id="workingHours" {...register("workingHours")} />
-      </FormField>
-
-      <SubmitButton isSubmitting={isSubmitting || updateSettings.isPending}>حفظ الإعدادات</SubmitButton>
-    </form>
+      />
+    </AppForm>
   );
 }

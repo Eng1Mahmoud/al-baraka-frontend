@@ -1,24 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { parseDecimal } from "@/shared/lib/format";
-import { FormField } from "@/shared/components/forms/FormField";
-import { SubmitButton } from "@/shared/components/forms/SubmitButton";
+import { AppForm } from "@/shared/components/forms/AppForm";
+import {
+  ControlledField,
+  SelectField,
+  SwitchField,
+  TextField,
+  TextareaField,
+} from "@/shared/components/forms/fields";
 import { useCategories } from "@/features/categories/hooks/useCategories";
 import { useSettings } from "@/features/settings/hooks/useSettings";
 import { ProductImagesInput } from "@/features/products/components/ProductImagesInput";
@@ -41,28 +34,7 @@ export function ProductForm({ defaultValues, onSubmit, submitLabel }: ProductFor
 
   // A product can't exist without a category, so say that plainly instead of
   // leaving an empty dropdown that looks broken.
-  const hasNoCategories = !isLoadingCategories && categories.length === 0;
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm<ProductFormInput, unknown, ProductFormValues>({
-    resolver: zodResolver(productSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      category: "",
-      unit: "",
-      stock: 0,
-      images: [],
-      isAvailable: true,
-      ...defaultValues,
-    },
-  });
-
-  if (hasNoCategories) {
+  if (!isLoadingCategories && categories.length === 0) {
     return (
       <div className="rounded-xl border border-dashed bg-brand-50 p-8 text-center">
         <p className="mb-1 font-semibold text-brand-900">أضف تصنيف الأول</p>
@@ -80,124 +52,88 @@ export function ProductForm({ defaultValues, onSubmit, submitLabel }: ProductFor
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <FormField label="اسم المنتج" htmlFor="name" error={errors.name?.message} required>
-        <Input id="name" placeholder="طماطم بلدي" {...register("name")} />
-      </FormField>
+    <AppForm
+      schema={productSchema}
+      onSubmit={onSubmit}
+      submitLabel={submitLabel}
+      className="space-y-6"
+      defaultValues={{
+        name: "",
+        description: "",
+        category: "",
+        unit: "",
+        stock: 0,
+        images: [],
+        isAvailable: true,
+        ...defaultValues,
+      }}
+    >
+      <TextField name="name" label="اسم المنتج" placeholder="طماطم بلدي" required />
 
-      <FormField label="التصنيف" htmlFor="category" error={errors.category?.message} required>
-        <Controller
-          control={control}
-          name="category"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange} disabled={isLoadingCategories}>
-              <SelectTrigger id="category" className="w-full">
-                <SelectValue placeholder={isLoadingCategories ? "بنحمّل التصنيفات..." : "اختر التصنيف"} />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category._id} value={category._id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </FormField>
+      <SelectField
+        name="category"
+        label="التصنيف"
+        required
+        disabled={isLoadingCategories}
+        placeholder={isLoadingCategories ? "بنحمّل التصنيفات..." : "اختر التصنيف"}
+        options={categories.map((category) => ({ value: category._id, label: category.name }))}
+      />
 
       {/* Price and unit sit together because a price only means something with its unit. */}
       <fieldset className="rounded-xl border bg-brand-50 p-4">
         <legend className="px-2 text-sm font-semibold text-brand-900">السعر والوحدة</legend>
         <div className="grid gap-4 sm:grid-cols-3">
-          <FormField
+          <TextField
+            name="price"
             label="السعر"
-            htmlFor="price"
-            error={errors.price?.message}
+            type="text"
+            inputMode="decimal"
+            placeholder="18.5"
             hint="بالجنيه، والكسور مسموحة — مثال: 12.5"
             required
-          >
-            <Input
-              id="price"
-              type="text"
-              inputMode="decimal"
-              placeholder="18.5"
-              {...register("price", { setValueAs: parseDecimal })}
-            />
-          </FormField>
+            // Normalises Arabic-Indic digits and the ٫ separator before zod sees it.
+            registerOptions={{ setValueAs: parseDecimal }}
+          />
 
-          <FormField
+          <SelectField
+            name="unit"
             label="الوحدة"
-            htmlFor="unit"
-            error={errors.unit?.message}
-            hint={units.length ? "تُدار قائمة الوحدات من الإعدادات" : "أضف وحدات البيع من صفحة الإعدادات"}
             required
-          >
-            <Controller
-              control={control}
-              name="unit"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="unit" className="w-full">
-                    <SelectValue placeholder="كجم" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {units.map((unit) => (
-                      <SelectItem key={unit} value={unit}>
-                        {unit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
+            placeholder="كجم"
+            hint={units.length ? "تُدار قائمة الوحدات من الإعدادات" : "أضف وحدات البيع من صفحة الإعدادات"}
+            options={units.map((unit) => ({ value: unit, label: unit }))}
+          />
 
-          <FormField
+          <TextField
+            name="discountPrice"
             label="سعر بعد الخصم"
-            htmlFor="discountPrice"
-            error={errors.discountPrice?.message}
+            type="text"
+            inputMode="decimal"
+            placeholder="15.75"
             hint="اتركه فارغًا لو مفيش خصم"
-          >
-            <Input
-              id="discountPrice"
-              type="text"
-              inputMode="decimal"
-              placeholder="15.75"
-              {...register("discountPrice", { setValueAs: parseDecimal })}
-            />
-          </FormField>
+            registerOptions={{ setValueAs: parseDecimal }}
+          />
         </div>
       </fieldset>
 
-      <FormField label="الكمية المتاحة" htmlFor="stock" error={errors.stock?.message}>
-        <Input id="stock" type="number" min="0" {...register("stock")} />
-      </FormField>
+      <TextField name="stock" label="الكمية المتاحة" type="number" min="0" />
 
-      <FormField label="الوصف" htmlFor="description" error={errors.description?.message}>
-        <Textarea id="description" rows={3} placeholder="طماطم بلدي طازجة، مناسبة للطبخ والسلطة." {...register("description")} />
-      </FormField>
+      <TextareaField
+        name="description"
+        label="الوصف"
+        rows={3}
+        placeholder="طماطم بلدي طازجة، مناسبة للطبخ والسلطة."
+      />
 
-      <Controller
-        control={control}
+      {/* No label — ProductImagesInput draws its own. */}
+      <ControlledField
         name="images"
-        render={({ field }) => (
+        render={(field) => (
           <ProductImagesInput value={field.value ?? []} onChange={field.onChange} />
         )}
       />
 
-      <div className="flex items-center gap-3">
-        <Controller
-          control={control}
-          name="isAvailable"
-          render={({ field }) => (
-            <Switch id="isAvailable" checked={field.value} onCheckedChange={field.onChange} />
-          )}
-        />
-        <Label htmlFor="isAvailable">متاح للبيع الآن</Label>
-      </div>
-
-      <SubmitButton isSubmitting={isSubmitting}>{submitLabel}</SubmitButton>
-    </form>
+      <SwitchField name="isAvailable" label="متاح للبيع الآن" />
+    </AppForm>
   );
 }

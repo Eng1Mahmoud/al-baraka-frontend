@@ -1,10 +1,7 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { FormField } from "@/shared/components/forms/FormField";
-import { SubmitButton } from "@/shared/components/forms/SubmitButton";
+import { AppForm } from "@/shared/components/forms/AppForm";
+import { ControlledField, TextField } from "@/shared/components/forms/fields";
 import { ImageUploadInput } from "@/shared/components/forms/ImageUploadInput";
 import {
   categorySchema,
@@ -20,61 +17,43 @@ interface CategoryFormProps {
   resetOnSuccess?: boolean;
 }
 
+const EMPTY: CategoryFormInput = { name: "", image: "", order: 0 };
+
 export function CategoryForm({
   defaultValues,
   onSubmit,
   submitLabel,
   resetOnSuccess = false,
 }: CategoryFormProps) {
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CategoryFormInput, unknown, CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
-    defaultValues: { name: "", image: "", order: 0, ...defaultValues },
-  });
-
   return (
-    <form
-      onSubmit={handleSubmit(async (values) => {
-        await onSubmit(values);
-        if (resetOnSuccess) reset({ name: "", image: "", order: 0 });
-      })}
+    <AppForm
+      schema={categorySchema}
+      submitLabel={submitLabel}
       className="space-y-5"
+      defaultValues={{ ...EMPTY, ...defaultValues }}
+      onSubmit={async (values, form) => {
+        await onSubmit(values);
+        if (resetOnSuccess) form.reset(EMPTY);
+      }}
     >
       <div className="grid gap-5 sm:grid-cols-[1fr_140px]">
-        <FormField label="اسم القسم" htmlFor="name" error={errors.name?.message} required>
-          <Input id="name" placeholder="خضروات" {...register("name")} />
-        </FormField>
-
-        <FormField
-          label="ترتيب العرض"
-          htmlFor="order"
-          error={errors.order?.message}
-          hint="الأقل يظهر أولًا"
-        >
-          <Input id="order" type="number" min="0" {...register("order")} />
-        </FormField>
+        <TextField name="name" label="اسم القسم" placeholder="خضروات" required />
+        <TextField name="order" label="ترتيب العرض" type="number" min="0" hint="الأقل يظهر أولًا" />
       </div>
 
-      <FormField label="صورة القسم" htmlFor="image" error={errors.image?.message}>
-        <Controller
-          control={control}
-          name="image"
-          render={({ field }) => (
-            <ImageUploadInput
-              value={field.value || undefined}
-              onChange={(url) => field.onChange(url ?? "")}
-              shape="wide"
-            />
-          )}
-        />
-      </FormField>
-
-      <SubmitButton isSubmitting={isSubmitting}>{submitLabel}</SubmitButton>
-    </form>
+      <ControlledField
+        name="image"
+        label="صورة القسم"
+        render={(field) => (
+          <ImageUploadInput
+            value={field.value || undefined}
+            // Normalised back to "" because the schema accepts a URL or an empty
+            // string, never undefined.
+            onChange={(url) => field.onChange(url ?? "")}
+            shape="wide"
+          />
+        )}
+      />
+    </AppForm>
   );
 }
