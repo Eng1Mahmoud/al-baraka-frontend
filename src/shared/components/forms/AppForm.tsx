@@ -10,8 +10,9 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { SubmitButton } from "@/shared/components/forms/SubmitButton";
 
 /**
  * Any zod object schema. Both sides are pinned to `FieldValues` because
@@ -73,6 +74,8 @@ export function AppForm<S extends FormSchema>({
     values,
   });
 
+  const isBusy = form.formState.isSubmitting || Boolean(isPending);
+
   return (
     // Spread rather than passed as one prop: this is RHF's own context shape, and it
     // is what lets the field components below resolve everything from a `name`.
@@ -84,12 +87,10 @@ export function AppForm<S extends FormSchema>({
       >
         {typeof children === "function" ? children(form) : children}
 
-        <SubmitButton
-          isSubmitting={form.formState.isSubmitting || Boolean(isPending)}
-          className={submitClassName}
-        >
+        <Button type="submit" disabled={isBusy} className={submitClassName}>
+          {isBusy && <Loader2 className="size-4 animate-spin" aria-hidden />}
           {submitLabel}
-        </SubmitButton>
+        </Button>
       </form>
     </FormProvider>
   );

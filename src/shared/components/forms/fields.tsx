@@ -19,16 +19,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormField } from "@/shared/components/forms/FormField";
+import { cn } from "@/lib/utils";
 
 /**
  * Fields that resolve themselves from the form context `AppForm` provides, so a
- * field is declared once by name instead of three times — as `htmlFor`, as `id`,
- * and again inside `errors.x?.message`. Those three drifting apart used to be a
- * silent bug: the label simply stopped focusing its control.
+ * field is declared once by name instead of three times — as the label's `htmlFor`,
+ * as the control's `id`, and again inside `errors.x?.message`. Those three drifting
+ * apart used to be a silent bug: the label simply stopped focusing its control.
  */
 
-interface BaseFieldProps {
+interface FieldProps {
   /** Doubles as the control's `id`, which is what keeps the label wired up. */
   name: string;
   label: string;
@@ -37,15 +37,45 @@ interface BaseFieldProps {
   className?: string;
 }
 
-/** The one piece of context every field needs: this field's error message. */
+/** This field's error message, read from the form it is rendered inside. */
 function useFieldError(name: string) {
   const { getFieldState, formState } = useFormContext();
-  // formState must be read here, not destructured lazily — RHF's Proxy tracks which
-  // slices a component subscribes to, and `getFieldState` alone would not subscribe.
+  // formState is read here rather than destructured lazily: RHF hands back a Proxy
+  // that records which slices a component touched, and that is what re-renders it.
   return getFieldState(name, formState).error?.message;
 }
 
-type TextFieldProps = BaseFieldProps &
+/** The shell every field shares — label above, hint or error below. */
+function Shell({
+  name,
+  label,
+  error,
+  hint,
+  required,
+  className,
+  children,
+}: FieldProps & { error?: string; children: ReactNode }) {
+  return (
+    <div className={cn("space-y-2", className)}>
+      <Label htmlFor={name}>
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </Label>
+
+      {children}
+
+      {/* The hint stands down once there is something wrong to say instead. */}
+      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {error && (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+type TextFieldProps = FieldProps &
   Omit<ComponentProps<typeof Input>, "id" | "name"> & {
     /** Passed to `register` — `setValueAs`, `valueAsNumber`, and friends. */
     registerOptions?: RegisterOptions;
@@ -64,20 +94,18 @@ export function TextField({
   const error = useFieldError(name);
 
   return (
-    <FormField
-      label={label}
-      htmlFor={name}
-      error={error}
-      hint={hint}
-      required={required}
-      className={className}
-    >
-      <Input id={name} aria-invalid={Boolean(error)} {...inputProps} {...register(name, registerOptions)} />
-    </FormField>
+    <Shell {...{ name, label, error, hint, required, className }}>
+      <Input
+        id={name}
+        aria-invalid={Boolean(error)}
+        {...inputProps}
+        {...register(name, registerOptions)}
+      />
+    </Shell>
   );
 }
 
-type TextareaFieldProps = BaseFieldProps & Omit<ComponentProps<typeof Textarea>, "id" | "name">;
+type TextareaFieldProps = FieldProps & Omit<ComponentProps<typeof Textarea>, "id" | "name">;
 
 export function TextareaField({
   name,
@@ -91,21 +119,14 @@ export function TextareaField({
   const error = useFieldError(name);
 
   return (
-    <FormField
-      label={label}
-      htmlFor={name}
-      error={error}
-      hint={hint}
-      required={required}
-      className={className}
-    >
+    <Shell {...{ name, label, error, hint, required, className }}>
       <Textarea id={name} aria-invalid={Boolean(error)} {...textareaProps} {...register(name)} />
-    </FormField>
+    </Shell>
   );
 }
 
-interface SelectFieldProps extends BaseFieldProps {
-  options: { value: string; label: ReactNode }[];
+interface SelectFieldProps extends FieldProps {
+  options: { value: string; label: string }[];
   placeholder?: string;
   disabled?: boolean;
   /** Extra work on change — checkout re-prices delivery off the chosen area. */
@@ -127,14 +148,7 @@ export function SelectField({
   const error = useFieldError(name);
 
   return (
-    <FormField
-      label={label}
-      htmlFor={name}
-      error={error}
-      hint={hint}
-      required={required}
-      className={className}
-    >
+    <Shell {...{ name, label, error, hint, required, className }}>
       <Controller
         control={control}
         name={name}
@@ -160,23 +174,23 @@ export function SelectField({
           </Select>
         )}
       />
-    </FormField>
+    </Shell>
   );
 }
 
 /**
- * A switch reads as one line, not as a labelled block, so it skips `FormField`
- * and puts its label beside the control instead of above it.
+ * A switch reads as one line, not as a labelled block, so it skips the shell and
+ * puts its label beside the control instead of above it.
  */
 export function SwitchField({
   name,
   label,
   className,
-}: Pick<BaseFieldProps, "name" | "label" | "className">) {
+}: Pick<FieldProps, "name" | "label" | "className">) {
   const { control } = useFormContext();
 
   return (
-    <div className={className ?? "flex items-center gap-3"}>
+    <div className={cn("flex items-center gap-3", className)}>
       <Controller
         control={control}
         name={name}
@@ -189,13 +203,7 @@ export function SwitchField({
   );
 }
 
-interface ControlledFieldProps extends Omit<BaseFieldProps, "label"> {
-  /** Omit when the control draws its own label — the image inputs do. */
-  label?: string;
-  render: (field: ControllerRenderProps<FieldValues, string>) => ReactNode;
-}
-
-/** Escape hatch for controls with their own value shape: image pickers, and the like. */
+/** Escape hatch for controls with their own value shape — the image pickers. */
 export function ControlledField({
   name,
   label,
@@ -203,7 +211,11 @@ export function ControlledField({
   required,
   className,
   render,
-}: ControlledFieldProps) {
+}: Omit<FieldProps, "label"> & {
+  /** Omit when the control draws its own label, as ProductImagesInput does. */
+  label?: string;
+  render: (field: ControllerRenderProps<FieldValues, string>) => ReactNode;
+}) {
   const { control } = useFormContext();
   const error = useFieldError(name);
 
@@ -213,16 +225,5 @@ export function ControlledField({
 
   if (!label) return controlled;
 
-  return (
-    <FormField
-      label={label}
-      htmlFor={name}
-      error={error}
-      hint={hint}
-      required={required}
-      className={className}
-    >
-      {controlled}
-    </FormField>
-  );
+  return <Shell {...{ name, label, error, hint, required, className }}>{controlled}</Shell>;
 }
